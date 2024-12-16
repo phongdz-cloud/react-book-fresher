@@ -1,4 +1,5 @@
-import { Button, Checkbox, Divider, Form, FormProps, Input } from "antd";
+import { loginAPI } from "@/services/api";
+import { Button, Divider, Form, FormProps, Input } from "antd";
 import Title from "antd/es/typography/Title";
 import { useState } from "react";
 
@@ -13,8 +14,11 @@ const RegisterPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     console.log("Success:", values);
+
+    const res = await loginAPI("admin@gmail.com", "1234567");
+    console.log("check res", res);
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
