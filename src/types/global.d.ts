@@ -20,6 +20,16 @@ declare global {
 
   interface ILogin {
     access_token: string;
+    user: IUser;
+  }
+
+  interface IRegister {
+    email: string;
+    fullName: string;
+    _id: string;
+  }
+
+  interface IUser {
     user: {
       email: string;
       phone: string;
@@ -28,11 +38,5 @@ declare global {
       avatar: string;
       id: string;
     };
-  }
-
-  interface IRegister {
-    email: string;
-    fullName: string;
-    _id: string;
   }
 }

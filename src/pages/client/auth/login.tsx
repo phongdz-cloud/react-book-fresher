@@ -1,3 +1,4 @@
+import { useCurrentApp } from "@/components/context/app.context";
 import { loginAPI } from "@/services/api";
 import { App, Button, Divider, Form, FormProps, Input } from "antd";
 import Title from "antd/es/typography/Title";
@@ -14,11 +15,14 @@ const LoginPage = () => {
   const { notification, message } = App.useApp();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setAuthenticated, setUser } = useCurrentApp();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setLoading(true);
     const res = await loginAPI(values.email || "", values.password || "");
     if (res.data) {
+      setAuthenticated(true);
+      setUser(res.data.user);
       localStorage.setItem("access_token", res.data.access_token);
       message.success("Đăng nhập tài khoản thành công");
       navigate("/");
