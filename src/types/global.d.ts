@@ -29,4 +29,10 @@ declare global {
       id: string;
     };
   }
+
+  interface IRegister {
+    email: string;
+    fullName: string;
+    _id: string;
+  }
 }

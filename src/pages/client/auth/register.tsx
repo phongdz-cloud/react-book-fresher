@@ -1,7 +1,8 @@
-import { loginAPI } from "@/services/api";
-import { Button, Divider, Form, FormProps, Input } from "antd";
+import { registerAPI } from "@/services/api";
+import { App, Button, Divider, Form, FormProps, Input } from "antd";
 import Title from "antd/es/typography/Title";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 type FieldType = {
   fullName?: string;
@@ -13,12 +14,27 @@ type FieldType = {
 const RegisterPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const { message } = App.useApp();
+  const navigate = useNavigate();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    console.log("Success:", values);
+    setLoading(true);
+    const res = await registerAPI(
+      values.fullName || "",
+      values.email || "",
+      values.password || "",
+      values.phone || ""
+    );
 
-    const res = await loginAPI("admin@gmail.com", "1234567");
-    console.log("check res", res);
+    if (res.data) {
+      form.resetFields();
+      message.success("Đăng ký user thành công");
+      navigate("/login");
+    } else {
+      message.error(res.message);
+    }
+
+    setLoading(false);
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
@@ -105,7 +121,6 @@ const RegisterPage = () => {
               type="primary"
               htmlType="submit"
               style={{ marginTop: "20px" }}
-              onClick={() => form.submit()}
               loading={loading}
             >
               Đăng ký
@@ -120,7 +135,7 @@ const RegisterPage = () => {
           >
             <Divider>Or</Divider>
             <p>
-              Đã có tài khoản ? <a href="#">Đăng nhập</a>
+              Đã có tài khoản ? <Link to="/login">Đăng nhập</Link>
             </p>
           </div>
         </Form>
