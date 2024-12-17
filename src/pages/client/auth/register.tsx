@@ -25,7 +25,6 @@ const RegisterPage = () => {
       values.password || "",
       values.phone || ""
     );
-
     if (res.data) {
       form.resetFields();
       message.success("Đăng ký user thành công");
