@@ -2,8 +2,10 @@ import { createContext, useContext, useState } from "react";
 
 interface IAppContext {
   isAuthenticated: boolean;
+  isAppLoading: boolean;
   setAuthenticated: (value: boolean) => void;
   setUser: (value: IUser | null) => void;
+  setAppLoading: (value: boolean) => void;
   user: IUser | null;
 }
 
@@ -14,13 +16,20 @@ type TProps = {
 };
 
 export const AppProvider = (props: TProps) => {
-  const [isAuthenticated, setAuthenticated] = useState(false);
-
+  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
+  const [isAppLoading, setAppLoading] = useState<boolean>(true);
   const [user, setUser] = useState<IUser | null>(null);
 
   return (
     <CurrentAppContext.Provider
-      value={{ isAuthenticated, user, setAuthenticated, setUser }}
+      value={{
+        isAuthenticated,
+        isAppLoading,
+        user,
+        setAuthenticated,
+        setUser,
+        setAppLoading,
+      }}
     >
       {props.children}
     </CurrentAppContext.Provider>
