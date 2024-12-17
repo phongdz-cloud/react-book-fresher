@@ -1,12 +1,14 @@
-import { createContext, useContext, useState } from "react";
+import { fetchAccountAPI } from "@/services/api";
+import { createContext, useContext, useEffect, useState } from "react";
+import PacmanLoader from "react-spinners/PacmanLoader";
 
 interface IAppContext {
   isAuthenticated: boolean;
-  isAppLoading: boolean;
-  setAuthenticated: (value: boolean) => void;
-  setUser: (value: IUser | null) => void;
-  setAppLoading: (value: boolean) => void;
+  setIsAuthenticated: (v: boolean) => void;
+  setUser: (v: IUser | null) => void;
   user: IUser | null;
+  isAppLoading: boolean;
+  setIsAppLoading: (v: boolean) => void;
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -16,23 +18,51 @@ type TProps = {
 };
 
 export const AppProvider = (props: TProps) => {
-  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
-  const [isAppLoading, setAppLoading] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<IUser | null>(null);
+  const [isAppLoading, setIsAppLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchAccount = async () => {
+      const res = await fetchAccountAPI();
+      if (res.data) {
+        setUser(res.data.user);
+        setIsAuthenticated(true);
+      }
+      setIsAppLoading(false);
+    };
+
+    fetchAccount();
+  }, []);
 
   return (
-    <CurrentAppContext.Provider
-      value={{
-        isAuthenticated,
-        isAppLoading,
-        user,
-        setAuthenticated,
-        setUser,
-        setAppLoading,
-      }}
-    >
-      {props.children}
-    </CurrentAppContext.Provider>
+    <>
+      {isAppLoading === false ? (
+        <CurrentAppContext.Provider
+          value={{
+            isAuthenticated,
+            user,
+            setIsAuthenticated,
+            setUser,
+            isAppLoading,
+            setIsAppLoading,
+          }}
+        >
+          {props.children}
+        </CurrentAppContext.Provider>
+      ) : (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <PacmanLoader size={30} color="#36d6b4" />
+        </div>
+      )}
+    </>
   );
 };
 
@@ -40,7 +70,9 @@ export const useCurrentApp = () => {
   const currentAppContext = useContext(CurrentAppContext);
 
   if (!currentAppContext) {
-    throw new Error("useCurrentApp must be used within AppContext");
+    throw new Error(
+      "useCurrentApp has to be used within <CurrentAppContext.Provider>"
+    );
   }
 
   return currentAppContext;

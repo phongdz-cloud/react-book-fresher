@@ -15,13 +15,13 @@ const LoginPage = () => {
   const { notification, message } = App.useApp();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setAuthenticated, setUser } = useCurrentApp();
+  const { setIsAuthenticated, setUser } = useCurrentApp();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setLoading(true);
     const res = await loginAPI(values.email || "", values.password || "");
     if (res.data) {
-      setAuthenticated(true);
+      setIsAuthenticated(true);
       setUser(res.data.user);
       localStorage.setItem("access_token", res.data.access_token);
       message.success("Đăng nhập tài khoản thành công");
