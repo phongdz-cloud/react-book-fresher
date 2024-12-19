@@ -45,3 +45,18 @@ export const getUsersAPI = (
     `/api/v1/user?current=${current}&pageSize=${pageSize}` + query + sort;
   return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend);
 };
+
+export const createUsersAPI = (
+  fullName: string,
+  password: string,
+  email: string,
+  phone: string
+) => {
+  const urlBackend = "/api/v1/user";
+  return axios.post<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend, {
+    fullName,
+    password,
+    email,
+    phone,
+  });
+};

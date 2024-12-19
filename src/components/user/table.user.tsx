@@ -7,6 +7,7 @@ import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import ViewUser from "./view.user";
+import CreateUser from "./create.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -70,6 +71,7 @@ const TableUser = () => {
   const [pageSize, setPageSize] = useState<number>(5);
   const [openView, setOpenView] = useState<boolean>(false);
   const [user, setUser] = useState<IUserTable | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleSort = (sort: FieldTypeSort) => {
     const { email, fullName, createdAt } = sort;
@@ -92,6 +94,8 @@ const TableUser = () => {
 
     if (sortQuery.length > 0) {
       sortQuery = sortQuery.slice(0, -1);
+    } else {
+      sortQuery = "&sort=-createdAt";
     }
 
     return sortQuery;
@@ -155,6 +159,7 @@ const TableUser = () => {
             icon={<PlusOutlined />}
             onClick={() => {
               actionRef.current?.reload();
+              setIsModalOpen(true);
             }}
             type="primary"
           >
@@ -167,6 +172,11 @@ const TableUser = () => {
         setOpen={setOpenView}
         user={user}
         setUser={setUser}
+      />
+      <CreateUser
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        actionRef={actionRef}
       />
     </>
   );
