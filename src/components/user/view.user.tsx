@@ -1,4 +1,4 @@
-import { Badge, Descriptions, DescriptionsProps, Drawer } from "antd";
+import { Avatar, Badge, Descriptions, DescriptionsProps, Drawer } from "antd";
 import dayjs from "dayjs";
 
 type IPropType = {
@@ -44,7 +44,20 @@ const ViewUser = (props: IPropType) => {
       key: "5",
       label: "Status",
       children: <Badge status="processing" text={user?.role} />,
-      span: 10,
+      span: 1,
+    },
+    {
+      key: "5",
+      label: "Avatar",
+      children: (
+        <Avatar
+          size={40}
+          src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${
+            user?.avatar
+          }`}
+        ></Avatar>
+      ),
+      span: 2,
     },
     {
       key: "7",
