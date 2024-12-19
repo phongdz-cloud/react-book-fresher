@@ -1,11 +1,11 @@
+import { dateRangeValidate } from "@/helper/date.helper";
+import { getUsersAPI } from "@/services/api";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getUsersAPI } from "@/services/api";
 import dayjs from "dayjs";
-import { dateRangeValidate } from "@/helper/date.helper";
+import { useRef, useState } from "react";
 
 const columns: ProColumns<IUserTable>[] = [
   {
@@ -49,64 +49,49 @@ const columns: ProColumns<IUserTable>[] = [
 ];
 
 const TableUser = () => {
-  const [current, setCurrent] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(5);
-  const [total, setTotal] = useState<number>(0);
-  const [users, setUsers] = useState<IUserTable[]>([]);
-  const [fullName, setFullName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [createAt, setCreateAt] = useState<string[]>([]);
   const actionRef = useRef<ActionType>();
-
-  const fetchUserList = useCallback(async () => {
-    let queryDate: string = "";
-    const dataRange = dateRangeValidate(createAt);
-    if (dataRange && dataRange.length > 0) {
-      console.log("dataRange", dataRange);
-      queryDate = `&createdAt>=${dataRange[0]}&createdAt<=${dataRange[1]}`;
-    }
-    const res = await getUsersAPI(
-      current,
-      pageSize,
-      fullName,
-      email,
-      queryDate
-    );
-
-    if (res && res.data) {
-      setCurrent(+res.data?.meta.current);
-      setPageSize(+res.data?.meta.pageSize);
-      setTotal(res.data?.meta.total);
-      setUsers(res.data?.result);
-    }
-  }, [current, pageSize, fullName, email, createAt]);
-
-  useEffect(() => {
-    fetchUserList();
-  }, [fetchUserList]);
-
+  const [pageSize, setPageSize] = useState<number>(5);
   return (
     <>
       <ProTable<IUserTable>
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        dataSource={users}
         rowKey="_id"
         request={async (params, sort, filter) => {
-          setFullName(params.fullName);
-          setEmail(params.email);
-          setCreateAt(params.createdAt);
-          return {};
+          console.log("params", params);
+          const { current, fullName, email, createdAt } = params; // destructuring params
+          let query = "";
+
+          if (pageSize !== params.pageSize) {
+            setPageSize(params.pageSize || 5);
+          }
+
+          if (fullName) {
+            query += `&fullName=/${fullName}/i`;
+          }
+
+          if (email) {
+            query += `&email=/${email}/i`;
+          }
+
+          if (createdAt) {
+            const dateRange = dateRangeValidate(createdAt);
+            if (dateRange) {
+              query += `&createdAt>=${dateRange[0]}&createdAt<=${dateRange[1]}`;
+            }
+          }
+          const res = await getUsersAPI(current || 1, pageSize || 5, query);
+          return {
+            data: res.data?.result,
+            success: true,
+            total: res.data?.meta.total,
+            pageSize: res.data?.meta.pageSize,
+            page: res.data?.meta.current,
+          };
         }}
         pagination={{
-          current: current,
           pageSize: pageSize,
-          total: total,
-          onChange: (page, pageSize) => {
-            setCurrent(page);
-            setPageSize(pageSize);
-          },
           showSizeChanger: true,
           showTotal: (total, range) =>
             `${range[0]}-${range[1]} trên ${total} rows`,

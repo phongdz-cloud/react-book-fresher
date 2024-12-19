@@ -38,16 +38,9 @@ export const logoutAPI = () => {
 export const getUsersAPI = (
   current: number,
   pageSize: number,
-  fullName: string,
-  email: string,
-  createAt: string
+  query: string
 ) => {
-  let urlBackend = `/api/v1/user?current=${current}&pageSize=${pageSize}&fullName=/${
-    fullName ?? ""
-  }/i&email=/${email ?? ""}/i`;
-  if (createAt) {
-    console.log(createAt);
-    urlBackend += createAt;
-  }
+  const urlBackend =
+    `/api/v1/user?current=${current}&pageSize=${pageSize}` + query;
   return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend);
 };
