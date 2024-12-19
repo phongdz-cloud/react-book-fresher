@@ -21,12 +21,13 @@ const columns: ProColumns<IUserTable>[] = [
     },
     search: false,
   },
-  { title: "Full Name", dataIndex: "fullName" },
-  { title: "Email", dataIndex: "email", copyable: true },
+  { title: "Full Name", dataIndex: "fullName", sorter: true },
+  { title: "Email", dataIndex: "email", copyable: true, sorter: true },
   {
     title: "Created At",
     dataIndex: "createdAt",
     valueType: "dateRange",
+    sorter: true,
     render(dom, entity, index, action, schema) {
       return <span>{dayjs(entity?.createdAt).format("YYYY-MM-DD")}</span>;
     },
@@ -48,9 +49,41 @@ const columns: ProColumns<IUserTable>[] = [
   },
 ];
 
+type FieldTypeSort = {
+  email?: string;
+  fullName?: string;
+  createdAt?: string;
+};
 const TableUser = () => {
   const actionRef = useRef<ActionType>();
   const [pageSize, setPageSize] = useState<number>(5);
+
+  const handleSort = (sort: FieldTypeSort) => {
+    const { email, fullName, createdAt } = sort;
+
+    let sortQuery = "";
+
+    if (email) {
+      sortQuery += (email === "ascend" ? "&sort=email" : "&sort=-email") + ",";
+    }
+
+    if (fullName) {
+      sortQuery +=
+        (fullName === "ascend" ? "&sort=fullName" : "&sort=-fullName") + ",";
+    }
+
+    if (createdAt) {
+      sortQuery +=
+        (createdAt === "ascend" ? "&sort=createdAt" : "&sort=-createdAt") + ",";
+    }
+
+    if (sortQuery.length > 0) {
+      sortQuery = sortQuery.slice(0, -1);
+    }
+
+    return sortQuery;
+  };
+
   return (
     <>
       <ProTable<IUserTable>
@@ -59,9 +92,10 @@ const TableUser = () => {
         cardBordered
         rowKey="_id"
         request={async (params, sort, filter) => {
-          console.log("params", params);
+          console.log("sort", sort);
           const { current, fullName, email, createdAt } = params; // destructuring params
           let query = "";
+          const sortQuery = handleSort(sort);
 
           if (pageSize !== params.pageSize) {
             setPageSize(params.pageSize || 5);
@@ -81,7 +115,12 @@ const TableUser = () => {
               query += `&createdAt>=${dateRange[0]}&createdAt<=${dateRange[1]}`;
             }
           }
-          const res = await getUsersAPI(current || 1, pageSize || 5, query);
+          const res = await getUsersAPI(
+            current || 1,
+            pageSize || 5,
+            query,
+            sortQuery
+          );
           return {
             data: res.data?.result,
             success: true,
