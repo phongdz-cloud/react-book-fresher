@@ -6,48 +6,7 @@ import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
-
-const columns: ProColumns<IUserTable>[] = [
-  {
-    dataIndex: "index",
-    valueType: "indexBorder",
-    width: 48,
-  },
-  {
-    title: "Id",
-    dataIndex: "_id",
-    render: (index, record) => {
-      return <a href="#">{record._id}</a>;
-    },
-    search: false,
-  },
-  { title: "Full Name", dataIndex: "fullName", sorter: true },
-  { title: "Email", dataIndex: "email", copyable: true, sorter: true },
-  {
-    title: "Created At",
-    dataIndex: "createdAt",
-    valueType: "dateRange",
-    sorter: true,
-    render(dom, entity, index, action, schema) {
-      return <span>{dayjs(entity?.createdAt).format("YYYY-MM-DD")}</span>;
-    },
-  },
-  {
-    title: "Action",
-    search: false,
-    render(dom, entity, index, action, schema) {
-      return (
-        <div style={{ display: "flex", gap: "15px" }}>
-          <EditOutlined
-            color="#f57800"
-            style={{ cursor: "pointer", color: "orange" }}
-          />
-          <DeleteOutlined style={{ cursor: "pointer", color: "#ff4d4f" }} />
-        </div>
-      );
-    },
-  },
-];
+import ViewUser from "./view.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -55,8 +14,62 @@ type FieldTypeSort = {
   createdAt?: string;
 };
 const TableUser = () => {
+  const columns: ProColumns<IUserTable>[] = [
+    {
+      dataIndex: "index",
+      valueType: "indexBorder",
+      width: 48,
+    },
+    {
+      title: "Id",
+      dataIndex: "_id",
+      render: (index, record) => {
+        return (
+          <a
+            href="#"
+            onClick={() => {
+              setOpenView(true);
+              setUser(record);
+            }}
+          >
+            {record._id}
+          </a>
+        );
+      },
+      search: false,
+    },
+    { title: "Full Name", dataIndex: "fullName", sorter: true },
+    { title: "Email", dataIndex: "email", copyable: true, sorter: true },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      valueType: "dateRange",
+      sorter: true,
+      render(dom, entity, index, action, schema) {
+        return <span>{dayjs(entity?.createdAt).format("YYYY-MM-DD")}</span>;
+      },
+    },
+    {
+      title: "Action",
+      search: false,
+      render(dom, entity, index, action, schema) {
+        return (
+          <div style={{ display: "flex", gap: "15px" }}>
+            <EditOutlined
+              color="#f57800"
+              style={{ cursor: "pointer", color: "orange" }}
+            />
+            <DeleteOutlined style={{ cursor: "pointer", color: "#ff4d4f" }} />
+          </div>
+        );
+      },
+    },
+  ];
+
   const actionRef = useRef<ActionType>();
   const [pageSize, setPageSize] = useState<number>(5);
+  const [openView, setOpenView] = useState<boolean>(false);
+  const [user, setUser] = useState<IUserTable | null>(null);
 
   const handleSort = (sort: FieldTypeSort) => {
     const { email, fullName, createdAt } = sort;
@@ -92,7 +105,6 @@ const TableUser = () => {
         cardBordered
         rowKey="_id"
         request={async (params, sort, filter) => {
-          console.log("sort", sort);
           const { current, fullName, email, createdAt } = params; // destructuring params
           let query = "";
           const sortQuery = handleSort(sort);
@@ -149,6 +161,12 @@ const TableUser = () => {
             Add new
           </Button>,
         ]}
+      />
+      <ViewUser
+        open={openView}
+        setOpen={setOpenView}
+        user={user}
+        setUser={setUser}
       />
     </>
   );
