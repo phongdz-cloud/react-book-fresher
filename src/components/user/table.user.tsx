@@ -12,6 +12,7 @@ import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
+import { CSVLink } from "react-csv";
 import CreateUser from "./create.user";
 import UploadFileUser from "./upload.user";
 import ViewUser from "./view.user";
@@ -21,6 +22,7 @@ type FieldTypeSort = {
   fullName?: string;
   createdAt?: string;
 };
+
 const TableUser = () => {
   const columns: ProColumns<IUserTable>[] = [
     {
@@ -78,6 +80,7 @@ const TableUser = () => {
   const [pageSize, setPageSize] = useState<number>(5);
   const [openView, setOpenView] = useState<boolean>(false);
   const [user, setUser] = useState<IUserTable | null>(null);
+  const [users, setUsers] = useState<IUserTable[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModalUploadOpen, setIsModalUploadOpen] = useState<boolean>(false);
 
@@ -117,6 +120,7 @@ const TableUser = () => {
         cardBordered
         rowKey="_id"
         request={async (params, sort) => {
+          console.log("params", params);
           const { current, fullName, email, createdAt } = params; // destructuring params
           let query = "";
           const sortQuery = handleSort(sort);
@@ -141,10 +145,11 @@ const TableUser = () => {
           }
           const res = await getUsersAPI(
             current || 1,
-            pageSize || 5,
+            params.pageSize || 5,
             query,
             sortQuery
           );
+          setUsers(res.data?.result || []);
           return {
             data: res.data?.result,
             success: true,
@@ -162,21 +167,15 @@ const TableUser = () => {
         dateFormatter="string"
         headerTitle="Table user"
         toolBarRender={() => [
-          <Button
-            key="button"
-            icon={<ExportOutlined />}
-            onClick={() => {
-              // actionRef.current?.reload();
-            }}
-            type="primary"
-          >
-            Export
+          <Button key="button" icon={<ExportOutlined />} type="primary">
+            <CSVLink data={users} filename="user-export.csv">
+              Export
+            </CSVLink>
           </Button>,
           <Button
             key="button"
             icon={<CloudUploadOutlined />}
             onClick={() => {
-              // actionRef.current?.reload();
               setIsModalUploadOpen(true);
             }}
             type="primary"
