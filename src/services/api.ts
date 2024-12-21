@@ -61,6 +61,19 @@ export const createUsersAPI = (
   });
 };
 
+export const updateUsersAPI = (
+  _id: string,
+  fullName: string,
+  phone: string
+) => {
+  const urlBackend = "/api/v1/user";
+  return axios.put<IBackendRes<IUserTable>>(urlBackend, {
+    _id,
+    fullName,
+    phone,
+  });
+};
+
 export const bulkCreateUsersAPI = (users: IBulkCreateUserRequest[]) => {
   const urlBackend = "/api/v1/user/bulk-create";
   return axios.post<IBackendRes<IBulkCreateUserResponse>>(urlBackend, users);

@@ -16,6 +16,7 @@ import { CSVLink } from "react-csv";
 import CreateUser from "./create.user";
 import UploadFileUser from "./upload.user";
 import ViewUser from "./view.user";
+import UpdateUser from "./update.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -66,10 +67,16 @@ const TableUser = () => {
         return (
           <div style={{ display: "flex", gap: "15px" }}>
             <EditOutlined
-              color="#f57800"
               style={{ cursor: "pointer", color: "orange" }}
+              onClick={() => {
+                setIsModalUpdateOpen(true);
+                setUser(entity);
+              }}
             />
-            <DeleteOutlined style={{ cursor: "pointer", color: "#ff4d4f" }} />
+            <DeleteOutlined
+              style={{ cursor: "pointer", color: "#ff4d4f" }}
+              twoToneColor="#"
+            />
           </div>
         );
       },
@@ -82,6 +89,7 @@ const TableUser = () => {
   const [user, setUser] = useState<IUserTable | null>(null);
   const [users, setUsers] = useState<IUserTable[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalUpdateOpen, setIsModalUpdateOpen] = useState<boolean>(false);
   const [isModalUploadOpen, setIsModalUploadOpen] = useState<boolean>(false);
 
   const handleSort = (sort: FieldTypeSort) => {
@@ -120,7 +128,6 @@ const TableUser = () => {
         cardBordered
         rowKey="_id"
         request={async (params, sort) => {
-          console.log("params", params);
           const { current, fullName, email, createdAt } = params; // destructuring params
           let query = "";
           const sortQuery = handleSort(sort);
@@ -205,6 +212,13 @@ const TableUser = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         actionRef={actionRef}
+      />
+      <UpdateUser
+        isModalOpen={isModalUpdateOpen}
+        setIsModalOpen={setIsModalUpdateOpen}
+        actionRef={actionRef}
+        user={user}
+        setUser={setUser}
       />
       <UploadFileUser
         isModalUploadOpen={isModalUploadOpen}
