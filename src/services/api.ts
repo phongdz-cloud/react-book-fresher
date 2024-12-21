@@ -74,6 +74,11 @@ export const updateUsersAPI = (
   });
 };
 
+export const deleteUsersAPI = (_id: string) => {
+  const urlBackend = `/api/v1/user/${_id}`;
+  return axios.delete<IBackendRes<IUserTable>>(urlBackend);
+};
+
 export const bulkCreateUsersAPI = (users: IBulkCreateUserRequest[]) => {
   const urlBackend = "/api/v1/user/bulk-create";
   return axios.post<IBackendRes<IBulkCreateUserResponse>>(urlBackend, users);

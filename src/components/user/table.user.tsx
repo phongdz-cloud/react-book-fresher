@@ -17,6 +17,7 @@ import CreateUser from "./create.user";
 import UploadFileUser from "./upload.user";
 import ViewUser from "./view.user";
 import UpdateUser from "./update.user";
+import DeleteUser from "./delete.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -73,10 +74,8 @@ const TableUser = () => {
                 setUser(entity);
               }}
             />
-            <DeleteOutlined
-              style={{ cursor: "pointer", color: "#ff4d4f" }}
-              twoToneColor="#"
-            />
+
+            <DeleteUser _id={entity._id} actionRef={actionRef} />
           </div>
         );
       },
