@@ -1,8 +1,8 @@
 import { deleteUsersAPI } from "@/services/api";
 import { DeleteOutlined } from "@ant-design/icons";
 import { ActionType } from "@ant-design/pro-components";
-import { App, Button, Popconfirm, PopconfirmProps } from "antd";
-import { MutableRefObject } from "react";
+import { App, Popconfirm, PopconfirmProps } from "antd";
+import { MutableRefObject, useState } from "react";
 
 type IPropType = {
   _id: string;
@@ -11,8 +11,10 @@ type IPropType = {
 const DeleteUser = (props: IPropType) => {
   const { _id, actionRef } = props;
   const { notification, message } = App.useApp();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const confirm: PopconfirmProps["onConfirm"] = async () => {
+    setIsLoading(true);
     const res = await deleteUsersAPI(_id);
     if (res.data) {
       message.success("Xoá user thành công");
@@ -23,6 +25,7 @@ const DeleteUser = (props: IPropType) => {
         description: res.message,
       });
     }
+    setIsLoading(false);
   };
 
   return (
@@ -32,6 +35,7 @@ const DeleteUser = (props: IPropType) => {
       onConfirm={confirm}
       okText="Xác nhận"
       cancelText="Hủy"
+      okButtonProps={{ loading: isLoading }}
     >
       <DeleteOutlined style={{ cursor: "pointer", color: "#ff4d4f" }} />
     </Popconfirm>
