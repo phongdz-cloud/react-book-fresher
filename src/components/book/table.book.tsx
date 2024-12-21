@@ -11,6 +11,7 @@ import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
+import ViewBook from "./view.book";
 
 type FieldSort = {
   mainText?: string;
@@ -28,6 +29,8 @@ const TableBook = () => {
   const actionRef = useRef<ActionType>();
   const [pageSize, setPageSize] = useState<number>(5);
   const [books, setBooks] = useState<IBookTable[]>([]);
+  const [openView, setOpenView] = useState<boolean>(false);
+  const [book, setBook] = useState<IBookTable | null>(null);
 
   const columns: ProColumns<IBookTable>[] = [
     {
@@ -40,7 +43,13 @@ const TableBook = () => {
       dataIndex: "_id",
       render: (index, record) => {
         return (
-          <a href="#" onClick={() => {}}>
+          <a
+            href="#"
+            onClick={() => {
+              setOpenView(true);
+              setBook(record);
+            }}
+          >
             {record._id}
           </a>
         );
@@ -200,6 +209,13 @@ const TableBook = () => {
             Add new
           </Button>,
         ]}
+      />
+
+      <ViewBook
+        open={openView}
+        setOpen={setOpenView}
+        book={book}
+        setBook={setBook}
       />
     </>
   );
