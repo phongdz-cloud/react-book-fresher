@@ -1,6 +1,13 @@
 import { dateRangeValidate } from "@/helper/date.helper";
 import { getUsersAPI } from "@/services/api";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  CloudUploadOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ExportOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
@@ -8,6 +15,7 @@ import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import ViewUser from "./view.user";
 import CreateUser from "./create.user";
+import UploadFileUser from "./upload.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -72,6 +80,7 @@ const TableUser = () => {
   const [openView, setOpenView] = useState<boolean>(false);
   const [user, setUser] = useState<IUserTable | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalUploadOpen, setIsModalUploadOpen] = useState<boolean>(false);
 
   const handleSort = (sort: FieldTypeSort) => {
     const { email, fullName, createdAt } = sort;
@@ -156,6 +165,27 @@ const TableUser = () => {
         toolBarRender={() => [
           <Button
             key="button"
+            icon={<ExportOutlined />}
+            onClick={() => {
+              // actionRef.current?.reload();
+            }}
+            type="primary"
+          >
+            Export
+          </Button>,
+          <Button
+            key="button"
+            icon={<CloudUploadOutlined />}
+            onClick={() => {
+              // actionRef.current?.reload();
+              setIsModalUploadOpen(true);
+            }}
+            type="primary"
+          >
+            Import
+          </Button>,
+          <Button
+            key="button"
             icon={<PlusOutlined />}
             onClick={() => {
               actionRef.current?.reload();
@@ -177,6 +207,10 @@ const TableUser = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         actionRef={actionRef}
+      />
+      <UploadFileUser
+        isModalUploadOpen={isModalUploadOpen}
+        setIsModalUploadOpen={setIsModalUploadOpen}
       />
     </>
   );
