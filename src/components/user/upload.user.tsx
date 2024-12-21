@@ -6,6 +6,7 @@ import Title from "antd/es/typography/Title";
 import Dragger from "antd/es/upload/Dragger";
 import ExcelJS from "exceljs";
 import { MutableRefObject, useState } from "react";
+import templateFile from "assets/template/users.xlsx?url";
 type IPropType = {
   isModalUploadOpen: boolean;
   setIsModalUploadOpen: (v: boolean) => void;
@@ -36,6 +37,10 @@ const UploadFileUser = (props: IPropType) => {
   const { message, notification } = App.useApp();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const getFileUrl = () => {
+    return new URL(templateFile, import.meta.url).href;
+  };
 
   const handleOk = async () => {
     setIsLoading(true);
@@ -142,11 +147,20 @@ const UploadFileUser = (props: IPropType) => {
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
             </p>
-            <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
+
             <p className="ant-upload-hint">
-              Support for a single upload. Only accept .csv, .xls, .xlsx
+              Support for a single upload. Only accept .csv, .xls, .xlsx or{" "}
+              <a
+                target="_blank"
+                download
+                href={getFileUrl()}
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                  //   e.preventDefault(); // Ngừng hành động mặc định (ví dụ: mở popup)
+                  e.stopPropagation(); // Ngừng sự kiện lan truyền
+                }}
+              >
+                Download Sample File
+              </a>
             </p>
           </Dragger>
           <Table
