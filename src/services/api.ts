@@ -83,3 +83,14 @@ export const bulkCreateUsersAPI = (users: IBulkCreateUserRequest[]) => {
   const urlBackend = "/api/v1/user/bulk-create";
   return axios.post<IBackendRes<IBulkCreateUserResponse>>(urlBackend, users);
 };
+
+export const getBooksAPI = (
+  current: number,
+  pageSize: number,
+  query: string,
+  sort: string
+) => {
+  const urlBackend =
+    `/api/v1/book?current=${current}&pageSize=${pageSize}` + query + sort;
+  return axios.get<IBackendRes<IModelPaginate<IBookTable>>>(urlBackend);
+};

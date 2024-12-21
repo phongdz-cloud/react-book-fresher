@@ -2,7 +2,6 @@ import { dateRangeValidate } from "@/helper/date.helper";
 import { getUsersAPI } from "@/services/api";
 import {
   CloudUploadOutlined,
-  DeleteOutlined,
   EditOutlined,
   ExportOutlined,
   PlusOutlined,
@@ -14,10 +13,10 @@ import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
 import CreateUser from "./create.user";
+import DeleteUser from "./delete.user";
+import UpdateUser from "./update.user";
 import UploadFileUser from "./upload.user";
 import ViewUser from "./view.user";
-import UpdateUser from "./update.user";
-import DeleteUser from "./delete.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -57,6 +56,7 @@ const TableUser = () => {
       dataIndex: "createdAt",
       valueType: "dateRange",
       sorter: true,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render(dom, entity, index, action, schema) {
         return <span>{dayjs(entity?.createdAt).format("YYYY-MM-DD")}</span>;
       },
@@ -64,6 +64,7 @@ const TableUser = () => {
     {
       title: "Action",
       search: false,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render(dom, entity, index, action, schema) {
         return (
           <div style={{ display: "flex", gap: "15px" }}>
