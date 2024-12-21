@@ -6,16 +6,15 @@ import {
   EditOutlined,
   ExportOutlined,
   PlusOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
-import ViewUser from "./view.user";
 import CreateUser from "./create.user";
 import UploadFileUser from "./upload.user";
+import ViewUser from "./view.user";
 
 type FieldTypeSort = {
   email?: string;
@@ -117,7 +116,7 @@ const TableUser = () => {
         actionRef={actionRef}
         cardBordered
         rowKey="_id"
-        request={async (params, sort, filter) => {
+        request={async (params, sort) => {
           const { current, fullName, email, createdAt } = params; // destructuring params
           let query = "";
           const sortQuery = handleSort(sort);

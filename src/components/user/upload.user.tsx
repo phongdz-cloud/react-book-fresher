@@ -1,22 +1,18 @@
 import { InboxOutlined } from "@ant-design/icons";
-import { App, Modal, Table, Typography, UploadProps } from "antd";
+import { App, Modal, Table, UploadProps } from "antd";
 import Title from "antd/es/typography/Title";
 import Dragger from "antd/es/upload/Dragger";
+import ExcelJS from "exceljs";
 import { useState } from "react";
-
 type IPropType = {
   isModalUploadOpen: boolean;
   setIsModalUploadOpen: (v: boolean) => void;
 };
-const dataSource = [
-  //   {
-  //     key: "1",
-  //     fullName: "Mike",
-  //     email: "phong@gmail.com",
-  //     phone: "0375489103",
-  //   },
-];
-
+type FieldType = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+};
 const columns = [
   {
     title: "Tên hiển thị",
@@ -37,7 +33,7 @@ const columns = [
 const UploadFileUser = (props: IPropType) => {
   const { isModalUploadOpen, setIsModalUploadOpen } = props;
 
-  const [isImportData, setIsImportData] = useState(true);
+  const [dataSource, setDataSource] = useState<FieldType[]>([]);
 
   const { message } = App.useApp();
 
@@ -47,6 +43,7 @@ const UploadFileUser = (props: IPropType) => {
 
   const handleCancel = () => {
     setIsModalUploadOpen(false);
+    setDataSource([]);
   };
 
   const propsUpload: UploadProps = {
@@ -55,8 +52,35 @@ const UploadFileUser = (props: IPropType) => {
     maxCount: 1,
     accept: ".csv,.xls,.xlsx",
     customRequest: ({ file, onSuccess }) => {
-      console.log("file", file);
-      onSuccess("ok");
+      const reader = new FileReader();
+      const workbook = new ExcelJS.Workbook();
+      reader.onload = async (e) => {
+        const fileBuffer = e.target?.result;
+        await workbook.xlsx.load(fileBuffer as ArrayBuffer);
+        setDataSource([]);
+        workbook.eachSheet((worksheet) => {
+          worksheet.eachRow((row, rowNumber) => {
+            if (rowNumber > 1) {
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const [_, fullName, email, phone] = Array.isArray(row.values)
+                ? row.values
+                : [];
+              setDataSource((prev) => [
+                ...prev,
+                {
+                  fullName: fullName?.toString() || "",
+                  email: email?.toString() || "",
+                  phone: phone?.toString() || "",
+                },
+              ]);
+            }
+          });
+        });
+        if (onSuccess) {
+          onSuccess("ok");
+        }
+      };
+      reader.readAsArrayBuffer(file as Blob);
     },
     onChange(info) {
       const { status } = info.file;
@@ -66,7 +90,6 @@ const UploadFileUser = (props: IPropType) => {
       }
       if (status === "done") {
         message.success(`${info.file.name} file uploaded successfully.`);
-        setIsImportData(false);
       } else if (status === "error") {
         message.error(`${info.file.name} file upload failed.`);
       }
@@ -82,10 +105,11 @@ const UploadFileUser = (props: IPropType) => {
         title={<Title level={5}>Import data user</Title>}
         open={isModalUploadOpen}
         onOk={handleOk}
-        okButtonProps={{ disabled: isImportData }}
+        okButtonProps={{ disabled: dataSource.length === 0 }}
         okText={"Import data"}
         onCancel={handleCancel}
         width={"50vw"}
+        destroyOnClose={isModalUploadOpen}
       >
         <>
           <Dragger {...propsUpload}>
@@ -103,7 +127,6 @@ const UploadFileUser = (props: IPropType) => {
             title={() => "Dữ liệu upload:"}
             dataSource={dataSource}
             columns={columns}
-            pagination={false}
           />
         </>
       </Modal>
