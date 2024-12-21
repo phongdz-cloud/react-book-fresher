@@ -1,17 +1,15 @@
+import { bulkCreateUsersAPI } from "@/services/api";
 import { InboxOutlined } from "@ant-design/icons";
+import { ActionType } from "@ant-design/pro-components";
 import { App, Modal, Table, UploadProps } from "antd";
 import Title from "antd/es/typography/Title";
 import Dragger from "antd/es/upload/Dragger";
 import ExcelJS from "exceljs";
-import { useState } from "react";
+import { MutableRefObject, useState } from "react";
 type IPropType = {
   isModalUploadOpen: boolean;
   setIsModalUploadOpen: (v: boolean) => void;
-};
-type FieldType = {
-  fullName?: string;
-  email?: string;
-  phone?: string;
+  actionRef: MutableRefObject<ActionType | undefined>;
 };
 const columns = [
   {
@@ -31,14 +29,34 @@ const columns = [
   },
 ];
 const UploadFileUser = (props: IPropType) => {
-  const { isModalUploadOpen, setIsModalUploadOpen } = props;
+  const { isModalUploadOpen, setIsModalUploadOpen, actionRef } = props;
 
-  const [dataSource, setDataSource] = useState<FieldType[]>([]);
+  const [dataSource, setDataSource] = useState<IBulkCreateUserRequest[]>([]);
 
-  const { message } = App.useApp();
+  const { message, notification } = App.useApp();
 
-  const handleOk = () => {
-    setIsModalUploadOpen(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleOk = async () => {
+    setIsLoading(true);
+    const res = await bulkCreateUsersAPI(dataSource);
+
+    if (res.data) {
+      notification.success({
+        message: "Bulk Create Users",
+        description: `Success = ${res.data.countSuccess}. Error = ${res.data.countError}`,
+      });
+      setIsModalUploadOpen(false);
+      setDataSource([]);
+      setIsLoading(false);
+      actionRef.current?.reload();
+    } else {
+      notification.error({
+        message: "Bulk Create Users",
+        description: res.message,
+      });
+    }
+    setIsLoading(false);
   };
 
   const handleCancel = () => {
@@ -71,16 +89,21 @@ const UploadFileUser = (props: IPropType) => {
                   fullName: fullName?.toString() || "",
                   email: email?.toString() || "",
                   phone: phone?.toString() || "",
+                  password: `${
+                    import.meta.env.VITE_USER_CREATE_DEFAULT_PASSWORD
+                  }`,
+                  id: rowNumber,
                 },
               ]);
             }
           });
         });
-        if (onSuccess) {
-          onSuccess("ok");
-        }
       };
       reader.readAsArrayBuffer(file as Blob);
+
+      if (onSuccess) {
+        onSuccess("ok");
+      }
     },
     onChange(info) {
       const { status } = info.file;
@@ -105,7 +128,10 @@ const UploadFileUser = (props: IPropType) => {
         title={<Title level={5}>Import data user</Title>}
         open={isModalUploadOpen}
         onOk={handleOk}
-        okButtonProps={{ disabled: dataSource.length === 0 }}
+        okButtonProps={{
+          disabled: dataSource.length === 0,
+          loading: isLoading,
+        }}
         okText={"Import data"}
         onCancel={handleCancel}
         width={"50vw"}
@@ -127,6 +153,7 @@ const UploadFileUser = (props: IPropType) => {
             title={() => "Dữ liệu upload:"}
             dataSource={dataSource}
             columns={columns}
+            rowKey={"id"}
           />
         </>
       </Modal>

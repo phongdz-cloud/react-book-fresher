@@ -60,3 +60,8 @@ export const createUsersAPI = (
     phone,
   });
 };
+
+export const bulkCreateUsersAPI = (users: IBulkCreateUserRequest[]) => {
+  const urlBackend = "/api/v1/user/bulk-create";
+  return axios.post<IBackendRes<IBulkCreateUserResponse>>(urlBackend, users);
+};

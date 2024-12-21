@@ -210,6 +210,7 @@ const TableUser = () => {
       <UploadFileUser
         isModalUploadOpen={isModalUploadOpen}
         setIsModalUploadOpen={setIsModalUploadOpen}
+        actionRef={actionRef}
       />
     </>
   );

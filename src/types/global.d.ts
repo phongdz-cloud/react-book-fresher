@@ -54,4 +54,16 @@ declare global {
     createdAt: Date;
     updatedAt: Date;
   }
+
+  interface IBulkCreateUserRequest {
+    fullName: string;
+    password: string;
+    email: string;
+    phone: string;
+  }
+
+  interface IBulkCreateUserResponse {
+    countSuccess: number;
+    countError: number;
+  }
 }
