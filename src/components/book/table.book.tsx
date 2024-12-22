@@ -98,7 +98,10 @@ const TableBook = () => {
           <div style={{ display: "flex", gap: "15px" }}>
             <EditOutlined
               style={{ cursor: "pointer", color: "orange" }}
-              onClick={() => {}}
+              onClick={() => {
+                setIsModalOpen(true);
+                setBook(entity);
+              }}
             />
 
             <DeleteOutlined
@@ -220,7 +223,13 @@ const TableBook = () => {
         setBook={setBook}
       />
 
-      <SaveBook isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
+      <SaveBook
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        actionRef={actionRef}
+        book={book}
+        setBook={setBook}
+      />
     </>
   );
 };

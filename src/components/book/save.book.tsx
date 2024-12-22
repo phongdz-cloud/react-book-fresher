@@ -1,5 +1,11 @@
-import { getCategoryBookAPI } from "@/services/api";
+import {
+  createBookAPI,
+  getCategoryBookAPI,
+  updateBookAPI,
+  uploadFileBookImg,
+} from "@/services/api";
 import { PlusOutlined } from "@ant-design/icons";
+import { ActionType } from "@ant-design/pro-components";
 import {
   App,
   Col,
@@ -18,15 +24,18 @@ import {
 } from "antd";
 import { BaseOptionType } from "antd/es/select";
 import { RcFile } from "antd/lib/upload";
-import { useEffect, useState } from "react";
-
+import { MutableRefObject, useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 type IPropType = {
   isModalOpen: boolean;
   setIsModalOpen: (v: boolean) => void;
+  actionRef: MutableRefObject<ActionType | undefined>;
+  book: IBookTable | null;
+  setBook: (v: IBookTable | null) => void;
 };
 type FieldType = {
-  thumbnail?: UploadFile[];
-  slider?: UploadFile[];
+  thumbnail?: UploadFile[] | string;
+  slider?: UploadFile[] | string[];
   mainText?: string;
   author?: string;
   price?: number;
@@ -42,9 +51,9 @@ const getBase64 = (file: FileType): Promise<string> =>
     reader.onerror = (error) => reject(error);
   });
 const SaveBook = (props: IPropType) => {
-  const { isModalOpen, setIsModalOpen } = props;
+  const { isModalOpen, setIsModalOpen, actionRef, book, setBook } = props;
   const [form] = Form.useForm();
-  const { message } = App.useApp();
+  const { message, notification } = App.useApp();
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
@@ -72,6 +81,35 @@ const SaveBook = (props: IPropType) => {
     fetchCategoryBook();
   }, []);
 
+  // fetch data book
+  useEffect(() => {
+    if (book) {
+      const baseUrl = import.meta.env.VITE_BACKEND_URL + "/images/book/";
+
+      form.setFieldsValue({
+        mainText: book.mainText,
+        author: book.author,
+        price: book.price,
+        quantity: book.quantity,
+        category: book.category,
+        thumbnail: [
+          {
+            uid: uuidv4(),
+            name: book.thumbnail,
+            status: "done",
+            url: baseUrl + book.thumbnail,
+          },
+        ],
+        slider: book.slider?.map((item) => ({
+          uid: uuidv4(),
+          name: item,
+          status: "done",
+          url: baseUrl + item,
+        })),
+      });
+    }
+  }, [book, form]);
+
   const handleOk = () => {
     form.submit();
   };
@@ -80,22 +118,91 @@ const SaveBook = (props: IPropType) => {
     resetDataModal();
   };
 
-  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    console.log("values", values);
-
+  const onFinish: FormProps<FieldType>["onFinish"] = async (
+    values: FieldType
+  ) => {
     const { thumbnail, slider } = values;
 
-    const filterDataThumb = thumbnail?.[0].error ? [] : thumbnail;
+    if (thumbnail && thumbnail.length > 0) {
+      const dataUpload = thumbnail[0] as UploadFile;
+      if (dataUpload.originFileObj) {
+        const resThumbnail = await uploadFileBookImg(
+          thumbnail[0] as UploadFile
+        );
+        if (resThumbnail.data) {
+          values.thumbnail = resThumbnail.data.fileUploaded;
+        } else {
+          notification.error({
+            message: "Có lỗi xảy ra",
+            description: resThumbnail.message,
+          });
+          return;
+        }
+      } else {
+        values.thumbnail = dataUpload.name;
+      }
+    }
 
-    const filterDataSlider = slider?.filter((item) => !item.error);
+    if (slider && slider.length > 0) {
+      const sliderStr: string[] = [];
+      for (const item of slider) {
+        const dataUpload = item as UploadFile;
+        if (dataUpload.originFileObj) {
+          const resSlider = await uploadFileBookImg(item as UploadFile);
+          if (resSlider.data) {
+            sliderStr.push(resSlider.data.fileUploaded);
+          } else {
+            notification.error({
+              message: "Có lỗi xảy ra",
+              description: resSlider.message,
+            });
+            return;
+          }
+        } else {
+          sliderStr.push(dataUpload.name);
+        }
+      }
+      values.slider = sliderStr;
+    }
 
-    console.log({
-      ...values,
-      thumbnail: filterDataThumb,
-      slider: filterDataSlider,
-    });
+    const bookData: IBookData = {
+      thumbnail: values.thumbnail as string,
+      slider: values.slider as string[],
+      mainText: values.mainText,
+      author: values.author,
+      price: values.price,
+      quantity: values.quantity,
+      category: values.category,
+    };
 
-    resetDataModal();
+    if (!book) {
+      // create book
+      const resDataBook = await createBookAPI(bookData);
+
+      if (resDataBook.data) {
+        message.success("Tạo mới sách thành công");
+        resetDataModal();
+        actionRef.current?.reload();
+      } else {
+        notification.error({
+          message: "Có lỗi xảy ra",
+          description: resDataBook.message,
+        });
+      }
+    } else {
+      const resDataBook = await updateBookAPI(bookData, book._id);
+
+      if (resDataBook.data) {
+        message.success("Cập nhật sách thành công");
+        resetDataModal();
+        actionRef.current?.reload();
+      } else {
+        notification.error({
+          message: "Có lỗi xảy ra",
+          description: resDataBook.message,
+        });
+      }
+    }
   };
 
   const resetDataModal = () => {
@@ -107,6 +214,7 @@ const SaveBook = (props: IPropType) => {
     setFileSlider([]);
     setPreviewSliderImage("");
     setPreviewSliderOpen(false);
+    setBook(null);
   };
 
   const beforeUpload = (file: RcFile) => {
@@ -118,7 +226,7 @@ const SaveBook = (props: IPropType) => {
     if (!isLt2M) {
       message.error("Image must smaller than 2MB!");
     }
-    return isJpgOrPng && isLt2M;
+    return (isJpgOrPng && isLt2M) || Upload.LIST_IGNORE;
   };
 
   const handlePreview = async (file: UploadFile) => {
@@ -131,14 +239,7 @@ const SaveBook = (props: IPropType) => {
   };
 
   const handleChange: UploadProps["onChange"] = (info) => {
-    const { fileList } = info;
-    if (info.file.status === "done") {
-      setFileThumbnail(
-        fileList.filter((file: UploadFile) => file.status === "done")
-      );
-    } else {
-      info.fileList = [];
-    }
+    setFileThumbnail(info.fileList);
   };
 
   const updatePropThumbnail: UploadProps = {
@@ -149,24 +250,13 @@ const SaveBook = (props: IPropType) => {
     onChange: handleChange,
     multiple: false,
     maxCount: 1,
-    beforeUpload: () => {
-      return true;
-    },
-    customRequest: ({ file, onSuccess, onError }) => {
-      // Kiểm tra file trước khi gọi onSuccess
-      const isValid = beforeUpload(file as RcFile); // Kiểm tra file hợp lệ
-      if (isValid) {
-        // Chỉ khi file hợp lệ mới trả về thành công
-        if (onSuccess) {
-          onSuccess("ok"); // Thông báo thành công
-        }
-      } else {
-        // Nếu file không hợp lệ, gọi onError
-        if (onError) {
-          onError(new Error("File not valid"));
-        }
+    beforeUpload: beforeUpload,
+    customRequest: ({ onSuccess }) => {
+      if (onSuccess) {
+        onSuccess("ok");
       }
     },
+    accept: "image/*",
   };
 
   const handlePreviewSlider = async (file: UploadFile) => {
@@ -189,24 +279,13 @@ const SaveBook = (props: IPropType) => {
     onPreview: handlePreviewSlider,
     onChange: handleChangeSlider,
     multiple: true,
-    beforeUpload: () => {
-      return true;
-    },
-    customRequest: ({ file, onSuccess, onError }) => {
-      // Kiểm tra file trước khi gọi onSuccess
-      const isValid = beforeUpload(file as RcFile); // Kiểm tra file hợp lệ
-      if (isValid) {
-        // Chỉ khi file hợp lệ mới trả về thành công
-        if (onSuccess) {
-          onSuccess("ok"); // Thông báo thành công
-        }
-      } else {
-        // Nếu file không hợp lệ, gọi onError
-        if (onError) {
-          onError(new Error("File not valid"));
-        }
+    beforeUpload: beforeUpload,
+    customRequest: ({ onSuccess }) => {
+      if (onSuccess) {
+        onSuccess("ok");
       }
     },
+    accept: "image/*",
   };
 
   const uploadButton = (
@@ -226,10 +305,10 @@ const SaveBook = (props: IPropType) => {
   return (
     <>
       <Modal
-        title="Thêm mới book"
+        title={book ? "Cập nhật sách" : "Thêm mới sách"}
         open={isModalOpen}
         onOk={handleOk}
-        okText="Tạo mới"
+        okText={book ? "Cập nhật" : "Tạo mới"}
         onCancel={handleCancel}
         cancelText="Hủy"
         width={"60vw"}
@@ -302,7 +381,7 @@ const SaveBook = (props: IPropType) => {
               </Row>
             </Col>
 
-            <Col span={6}>
+            <Col span={12}>
               <Form.Item<FieldType>
                 label="Số lượng"
                 name="quantity"
@@ -310,7 +389,7 @@ const SaveBook = (props: IPropType) => {
                   { required: true, message: "Số lượng không được để trống" },
                 ]}
               >
-                <Input type="number" />
+                <InputNumber style={{ width: "150px" }} />
               </Form.Item>
             </Col>
           </Row>

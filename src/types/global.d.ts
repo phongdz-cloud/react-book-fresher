@@ -80,4 +80,18 @@ declare global {
     createdAt: Date;
     updatedAt: Date;
   }
+
+  interface IBookData {
+    thumbnail?: string;
+    slider?: string[];
+    mainText?: string;
+    author?: string;
+    price?: number;
+    quantity?: number;
+    category?: string;
+  }
+
+  interface IFileUploadResponse {
+    fileUploaded: string;
+  }
 }

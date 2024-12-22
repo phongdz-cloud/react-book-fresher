@@ -1,3 +1,4 @@
+import { UploadFile } from "antd";
 import axios from "services/axios.customize";
 
 export const loginAPI = (username: string, password: string) => {
@@ -98,4 +99,30 @@ export const getBooksAPI = (
 export const getCategoryBookAPI = () => {
   const urlBackend = "/api/v1/database/category";
   return axios.get<IBackendRes<string[]>>(urlBackend);
+};
+
+export const uploadFileBookImg = (fileImg: UploadFile) => {
+  const urlBackend = "/api/v1/file/upload";
+  const formData = new FormData();
+  formData.append("fileImg", fileImg.originFileObj as Blob);
+
+  return axios<IBackendRes<IFileUploadResponse>>({
+    method: "post",
+    url: urlBackend,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "upload-type": "book",
+    },
+  });
+};
+
+export const createBookAPI = (bookData: IBookData) => {
+  const urlBackend = "/api/v1/book";
+  return axios.post<IBackendRes<IFileUploadResponse>>(urlBackend, bookData);
+};
+
+export const updateBookAPI = (bookData: IBookData, id: string) => {
+  const urlBackend = "/api/v1/book" + `/${id}`;
+  return axios.put<IBackendRes<IFileUploadResponse>>(urlBackend, bookData);
 };
