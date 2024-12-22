@@ -1,18 +1,14 @@
 import { getBooksAPI } from "@/services/api";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ExportOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, ExportOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button } from "antd";
 import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
-import ViewBook from "./view.book";
+import DeleteBook from "./delete.book";
 import SaveBook from "./save.book";
+import ViewBook from "./view.book";
 
 type FieldSort = {
   mainText?: string;
@@ -104,10 +100,7 @@ const TableBook = () => {
               }}
             />
 
-            <DeleteOutlined
-              style={{ cursor: "pointer", color: "red" }}
-              onClick={() => {}}
-            />
+            <DeleteBook id={entity._id} actionRef={actionRef} />
           </div>
         );
       },
