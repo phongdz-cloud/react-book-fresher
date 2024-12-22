@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import { useRef, useState } from "react";
 import { CSVLink } from "react-csv";
 import ViewBook from "./view.book";
+import SaveBook from "./save.book";
 
 type FieldSort = {
   mainText?: string;
@@ -31,6 +32,7 @@ const TableBook = () => {
   const [books, setBooks] = useState<IBookTable[]>([]);
   const [openView, setOpenView] = useState<boolean>(false);
   const [book, setBook] = useState<IBookTable | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const columns: ProColumns<IBookTable>[] = [
     {
@@ -202,7 +204,7 @@ const TableBook = () => {
             key="button"
             icon={<PlusOutlined />}
             onClick={() => {
-              actionRef.current?.reload();
+              setIsModalOpen(true);
             }}
             type="primary"
           >
@@ -217,6 +219,8 @@ const TableBook = () => {
         book={book}
         setBook={setBook}
       />
+
+      <SaveBook isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
     </>
   );
 };

@@ -94,3 +94,8 @@ export const getBooksAPI = (
     `/api/v1/book?current=${current}&pageSize=${pageSize}` + query + sort;
   return axios.get<IBackendRes<IModelPaginate<IBookTable>>>(urlBackend);
 };
+
+export const getCategoryBookAPI = () => {
+  const urlBackend = "/api/v1/database/category";
+  return axios.get<IBackendRes<string[]>>(urlBackend);
+};
