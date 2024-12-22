@@ -174,11 +174,11 @@ const TableUser = () => {
         dateFormatter="string"
         headerTitle="Table user"
         toolBarRender={() => [
-          <Button key="button" icon={<ExportOutlined />} type="primary">
-            <CSVLink data={users} filename="user-export.csv">
+          <CSVLink data={users} filename="user-export.csv">
+            <Button key="button" icon={<ExportOutlined />} type="primary">
               Export
-            </CSVLink>
-          </Button>,
+            </Button>
+          </CSVLink>,
           <Button
             key="button"
             icon={<CloudUploadOutlined />}

@@ -191,11 +191,11 @@ const TableBook = () => {
         dateFormatter="string"
         headerTitle="Table book"
         toolBarRender={() => [
-          <Button key="button" icon={<ExportOutlined />} type="primary">
-            <CSVLink data={books} filename="book-export.csv">
+          <CSVLink data={books} filename="book-export.csv">
+            <Button key="button" icon={<ExportOutlined />} type="primary">
               Export
-            </CSVLink>
-          </Button>,
+            </Button>
+          </CSVLink>,
           <Button
             key="button"
             icon={<PlusOutlined />}
