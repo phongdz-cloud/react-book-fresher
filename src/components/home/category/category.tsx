@@ -1,10 +1,34 @@
 import { getCategoryBookAPI } from "@/services/api";
 import { FilterOutlined, RedoOutlined } from "@ant-design/icons";
-import { Button, Checkbox, Col, Divider, Flex, Input, Rate, Row } from "antd";
+import {
+  Button,
+  Checkbox,
+  Col,
+  Divider,
+  Flex,
+  Form,
+  FormProps,
+  InputNumber,
+  Rate,
+  Row,
+} from "antd";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 import Paragraph from "antd/es/typography/Paragraph";
+import { useForm } from "antd/lib/form/Form";
 import { useEffect, useState } from "react";
 
-const Category = () => {
+type FieldType = {
+  formPrice?: number;
+  endPrice?: number;
+};
+interface IProps {
+  queryCategory: string[];
+  setQueryCategory: (query: string[]) => void;
+  setPrice: (price: number[]) => void;
+}
+const Category = (props: IProps) => {
+  const [form] = useForm();
+  const { queryCategory, setQueryCategory, setPrice } = props;
   const rates: number[] = [5, 4, 3, 2, 1];
   const [category, setCategory] = useState<string[]>([]);
 
@@ -24,8 +48,37 @@ const Category = () => {
     fetchCategory();
   }, []);
 
+  const onFinish: FormProps<FieldType>["onFinish"] = async (
+    values: FieldType
+  ) => {
+    const { formPrice, endPrice } = values;
+
+    if (formPrice && endPrice) {
+      setPrice([formPrice, endPrice]);
+    } else {
+      setPrice([]);
+    }
+  };
+
+  const onChange = (e: CheckboxChangeEvent) => {
+    const value = e.target.value as string;
+    const dataQuery = [...queryCategory];
+
+    if (dataQuery.length === 0) {
+      setQueryCategory([value]);
+      return;
+    }
+    if (dataQuery.includes(e.target.value)) {
+      dataQuery.splice(dataQuery.indexOf(value), 1);
+    } else {
+      dataQuery.push(value);
+    }
+
+    return setQueryCategory([...dataQuery]);
+  };
+
   return (
-    <div className="p-5 border-2 border-solid border-gray-100">
+    <div className="p-2 border-2 border-solid border-gray-100">
       <Row>
         <Col span={24}>
           <Row justify={"space-between"}>
@@ -57,7 +110,7 @@ const Category = () => {
               {category.map((cate, index) => {
                 return (
                   <Col span={24} key={index} style={{ marginBottom: "10px" }}>
-                    <Checkbox value={cate}>
+                    <Checkbox value={cate} onChange={onChange}>
                       <span>{cate}</span>
                     </Checkbox>
                   </Col>
@@ -71,38 +124,49 @@ const Category = () => {
         </Col>
         <Col span={24}>
           <Row>
-            <Col>
+            <Col span={24}>
               <Paragraph>Khoảng giá</Paragraph>
             </Col>
+            <Row style={{ marginTop: "10px" }}>
+              <Col span={24}>
+                <Form name="basic" onFinish={onFinish} form={form}>
+                  <div className="flex space-x-7">
+                    <Form.Item<FieldType> name="formPrice">
+                      <InputNumber
+                        formatter={(value) => {
+                          return `${value}`.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          );
+                        }}
+                      />
+                    </Form.Item>
+                    <span>-</span>
+                    <Form.Item<FieldType> name="endPrice">
+                      <InputNumber
+                        formatter={(value) => {
+                          return `${value}`.replace(
+                            /\B(?=(\d{3})+(?!\d))/g,
+                            ","
+                          );
+                        }}
+                      />
+                    </Form.Item>
+                  </div>
+                  <Button
+                    type="primary"
+                    style={{ width: "100%" }}
+                    onClick={() => form.submit()}
+                  >
+                    Áp dụng
+                  </Button>
+                </Form>
+              </Col>
+            </Row>
           </Row>
-          <Row style={{ marginTop: "10px" }}>
-            <Col span={8}>
-              <Input />
-            </Col>
-            <Col
-              span={8}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <span>-</span>
-            </Col>
-            <Col span={8}>
-              <Input />
-            </Col>
-          </Row>
-          <Row style={{ marginTop: "40px" }}>
-            <Col span={24}>
-              <Button type="primary" style={{ width: "100%" }}>
-                Áp dụng
-              </Button>
-              <Divider />
-            </Col>
-          </Row>
+
           <Row>
-            <Col span={24}>
+            <Col span={24} style={{ marginTop: "20px" }}>
               <Paragraph>Đánh giá</Paragraph>
             </Col>
             {rates.map((rateNumber, index) => {

@@ -1,7 +1,10 @@
-import { Col, Row } from "antd";
 import Category from "@/components/home/category/category";
-import Product from "@/components/home/product/product";
+import ProductTable from "@/components/home/product/product.table";
+import { Col, Row } from "antd";
+import { useState } from "react";
 const HomePage = () => {
+  const [queryCategory, setQueryCategory] = useState<string[]>([]);
+  const [price, setPrice] = useState<number[]>([]);
   return (
     <>
       <Row
@@ -10,10 +13,14 @@ const HomePage = () => {
         wrap={true}
       >
         <Col xl={5} className="sm:block hidden">
-          <Category />
+          <Category
+            queryCategory={queryCategory}
+            setQueryCategory={setQueryCategory}
+            setPrice={setPrice}
+          />
         </Col>
         <Col xs={24} style={{ flex: 1 }}>
-          <Product />
+          <ProductTable queryCategory={queryCategory} price={price} />
         </Col>
       </Row>
     </>

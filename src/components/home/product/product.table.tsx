@@ -9,19 +9,36 @@ import {
   Rate,
   Row,
   Spin,
+  Tabs,
 } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
-const ProductTable = () => {
+interface IProps {
+  queryCategory: string[];
+  price: number[];
+}
+const ProductTable = (props: IProps) => {
   const [books, setBooks] = useState<IBookTable[]>([]);
   const [current, setCurrent] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(8);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [querySort, setQuerySort] = useState<string>("&sort=-sold");
+  const { queryCategory, price } = props;
 
   const fetchDataBook = useCallback(async () => {
     setLoading(true);
-    const res = await getBooksAPI(current, pageSize, "", "&sort=-sold");
+
+    let queryData = "";
+    if (queryCategory && queryCategory.length > 0) {
+      queryData = `&category=${queryCategory.join(",")}`;
+    }
+
+    if (price && price.length > 0) {
+      queryData += `&price>=${price[0]}&price<=${price[1]}`;
+    }
+
+    const res = await getBooksAPI(current, pageSize, queryData, querySort);
     if (res && res.data) {
       setBooks(res.data.result);
       setCurrent(res.data.meta.current);
@@ -29,7 +46,7 @@ const ProductTable = () => {
       setTotal(res.data.meta.total);
     }
     setLoading(false);
-  }, [current, pageSize]);
+  }, [current, pageSize, price, queryCategory, querySort]);
 
   useEffect(() => {
     fetchDataBook();
@@ -39,8 +56,39 @@ const ProductTable = () => {
     setCurrent(page);
   };
 
+  const onChangeTab = (key: string) => {
+    setQuerySort(key);
+  };
+
+  const items = useMemo(() => {
+    return [
+      {
+        key: "&sort=-sold",
+        label: "Phổ Biến",
+        children: <></>,
+      },
+      {
+        key: "&sort=-updateAt",
+        label: "Hàng Mới",
+        children: <></>,
+      },
+      {
+        key: "&sort=price",
+        label: "Giá Thấp Tới Cao",
+        children: <></>,
+      },
+      {
+        key: "&sort=-price",
+        label: "Giá Cao Tới Thấp",
+        children: <></>,
+      },
+    ];
+  }, []);
+
   return (
     <>
+      <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} />
+
       <Spin spinning={loading} size="small" tip="loading...">
         <Flex vertical={true} gap={"10"}>
           <Row>
