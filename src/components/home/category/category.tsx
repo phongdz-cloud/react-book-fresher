@@ -1,9 +1,29 @@
+import { getCategoryBookAPI } from "@/services/api";
 import { FilterOutlined, RedoOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Col, Divider, Flex, Input, Rate, Row } from "antd";
 import Paragraph from "antd/es/typography/Paragraph";
+import { useEffect, useState } from "react";
 
 const Category = () => {
   const rates: number[] = [5, 4, 3, 2, 1];
+  const [category, setCategory] = useState<string[]>([]);
+
+  // fetch category
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const response = await getCategoryBookAPI();
+
+        if (response && response.data) {
+          setCategory(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCategory();
+  }, []);
+
   return (
     <div className="p-5 border-2 border-solid border-gray-100">
       <Row>
@@ -33,32 +53,16 @@ const Category = () => {
         </Col>
         <Col span={24}>
           <Checkbox.Group style={{ width: "100%" }}>
-            <Row gutter={10}>
-              <Col span={24}>
-                <Checkbox value="A">
-                  <span>A</span>
-                </Checkbox>
-              </Col>
-              <Col span={24}>
-                <Checkbox value="B">
-                  <span>B</span>
-                </Checkbox>
-              </Col>
-              <Col span={24}>
-                <Checkbox value="C">
-                  <span>C</span>
-                </Checkbox>
-              </Col>
-              <Col span={24}>
-                <Checkbox value="D">
-                  <span>D</span>
-                </Checkbox>
-              </Col>
-              <Col span={24}>
-                <Checkbox value="E">
-                  <span>E</span>
-                </Checkbox>
-              </Col>
+            <Row>
+              {category.map((cate, index) => {
+                return (
+                  <Col span={24} key={index} style={{ marginBottom: "10px" }}>
+                    <Checkbox value={cate}>
+                      <span>{cate}</span>
+                    </Checkbox>
+                  </Col>
+                );
+              })}
             </Row>
           </Checkbox.Group>
         </Col>

@@ -10,28 +10,30 @@ const Product = () => {
     {
       key: "1",
       label: "Phổ Biến",
-      children: <ProductTable />,
+      children: <></>,
     },
     {
       key: "2",
       label: "Hàng Mới",
-      children: <ProductTable />,
+      children: <></>,
     },
     {
       key: "3",
       label: "Giá Thấp Tới Cao",
-      children: <ProductTable />,
+      children: <></>,
     },
     {
       key: "4",
       label: "Giá Cao Tới Thấp",
-      children: <ProductTable />,
+      children: <></>,
     },
   ];
 
   return (
     <>
       <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+
+      <ProductTable />
     </>
   );
 };
