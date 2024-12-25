@@ -8,11 +8,11 @@ import {
   Flex,
   Form,
   FormProps,
+  GetProp,
   InputNumber,
   Rate,
   Row,
 } from "antd";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
 import Paragraph from "antd/es/typography/Paragraph";
 import { useForm } from "antd/lib/form/Form";
 import { useEffect, useState } from "react";
@@ -60,21 +60,20 @@ const Category = (props: IProps) => {
     }
   };
 
-  const onChange = (e: CheckboxChangeEvent) => {
-    const value = e.target.value as string;
-    const dataQuery = [...queryCategory];
-
-    if (dataQuery.length === 0) {
-      setQueryCategory([value]);
-      return;
-    }
-    if (dataQuery.includes(e.target.value)) {
-      dataQuery.splice(dataQuery.indexOf(value), 1);
+  const onChangeCheckBox: GetProp<typeof Checkbox.Group, "onChange"> = (
+    checkedValues
+  ) => {
+    if (checkedValues.length !== 0) {
+      setQueryCategory([...(checkedValues as string[])]);
     } else {
-      dataQuery.push(value);
+      setQueryCategory([]);
     }
+  };
 
-    return setQueryCategory([...dataQuery]);
+  const resetData = () => {
+    setQueryCategory([]);
+    setPrice([]);
+    form.resetFields();
   };
 
   return (
@@ -86,14 +85,21 @@ const Category = (props: IProps) => {
               <Paragraph>
                 <div className="flex gap-2">
                   <FilterOutlined />
-                  <span>Bộ lọc tìm kiếm</span>
+                  <span className=" font-bold">Bộ lọc tìm kiếm</span>
                 </div>
               </Paragraph>
             </Col>
             <Col>
-              <RedoOutlined rotate={250} />
+              <RedoOutlined
+                rotate={250}
+                className=" cursor-pointer"
+                onClick={() => resetData()}
+              />
             </Col>
           </Row>
+        </Col>
+        <Col span={24}>
+          <Divider></Divider>
         </Col>
         <Col span={24}>
           <Row style={{ margin: "15px 0px" }}>
@@ -105,12 +111,16 @@ const Category = (props: IProps) => {
           </Row>
         </Col>
         <Col span={24}>
-          <Checkbox.Group style={{ width: "100%" }}>
+          <Checkbox.Group
+            style={{ width: "100%" }}
+            onChange={onChangeCheckBox}
+            value={queryCategory}
+          >
             <Row>
               {category.map((cate, index) => {
                 return (
                   <Col span={24} key={index} style={{ marginBottom: "10px" }}>
-                    <Checkbox value={cate} onChange={onChange}>
+                    <Checkbox value={cate}>
                       <span>{cate}</span>
                     </Checkbox>
                   </Col>

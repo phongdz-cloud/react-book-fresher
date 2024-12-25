@@ -104,7 +104,6 @@ const AppHeader = (props: any) => {
             <div className="page-header__logo">
               <span className="logo">
                 <span onClick={() => navigate("/")}>
-                  {" "}
                   <FaReact className="rotate icon-react" />
                   Hỏi Dân !T
                 </span>

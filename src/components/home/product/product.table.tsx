@@ -12,6 +12,7 @@ import {
   Tabs,
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
   queryCategory: string[];
@@ -25,6 +26,7 @@ const ProductTable = (props: IProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [querySort, setQuerySort] = useState<string>("&sort=-sold");
   const { queryCategory, price } = props;
+  const nav = useNavigate();
 
   const fetchDataBook = useCallback(async () => {
     setLoading(true);
@@ -85,17 +87,23 @@ const ProductTable = (props: IProps) => {
     ];
   }, []);
 
+  const handleOnClick = (id: string) => {
+    nav("/book/" + id);
+  };
+
   return (
     <>
       <Tabs defaultActiveKey="1" items={items} onChange={onChangeTab} />
-
       <Spin spinning={loading} size="small" tip="loading...">
         <Flex vertical={true} gap={"10"}>
           <Row>
             {books.map((book) => {
               return (
                 <Col xs={12} sm={8} md={6} lg={6} xl={6} key={book._id}>
-                  <div className="h-[95%] flex flex-col justify-center items-center sm:w-[220px] sm:border-1 sm:border-solid sm:border-gray-50 mt-5 sm:shadow-sm">
+                  <div
+                    onClick={() => handleOnClick(book._id)}
+                    className="h-[95%] flex flex-col justify-center items-center sm:w-[220px] sm:border-1 sm:border-solid sm:border-gray-50 mt-5 sm:shadow-sm cursor-pointer"
+                  >
                     <Image
                       src={
                         import.meta.env.VITE_BACKEND_URL +
