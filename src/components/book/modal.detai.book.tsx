@@ -10,6 +10,7 @@ interface IPropType {
     thumbnail: string;
   }[];
   currentIndex: number;
+  title?: string;
 }
 const ModalDetailBook = (props: IPropType) => {
   const { isModalOpen, setIsModalOpen, images } = props;
@@ -58,6 +59,11 @@ const ModalDetailBook = (props: IPropType) => {
             />
           </Col>
           <Col span={8}>
+            <Row style={{ marginBottom: "10px" }}>
+              <Col>
+                <p className="text-sm">{props.title}</p>
+              </Col>
+            </Row>
             <Row gutter={[12, 12]}>
               {images.map((item, index) => {
                 return (

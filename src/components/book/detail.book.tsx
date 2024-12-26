@@ -1,25 +1,44 @@
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { Col, Rate, Row } from "antd";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import ModalDetailBook from "./modal.detai.book";
-const BookDetail = () => {
+
+interface IPropType {
+  book: IBookTable | undefined;
+}
+interface ImageData {
+  original: string;
+  thumbnail: string;
+}
+const BookDetail = (props: IPropType) => {
+  const { book } = props;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const refGallery = useRef<ImageGallery>(null);
-  const [images, setImages] = useState([
-    {
-      original: "https://picsum.photos/id/1018/1000/600/",
-      thumbnail: "https://picsum.photos/id/1018/1000/600/",
-    },
-    {
-      original: "https://picsum.photos/id/1015/1000/600/",
-      thumbnail: "https://picsum.photos/id/1015/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1019/1000/600/",
-      thumbnail: "https://picsum.photos/id/1019/250/150/",
-    },
-  ]);
+  const [images, setImages] = useState<ImageData[]>([]);
+
+  useEffect(() => {
+    if (book) {
+      const imagesData: ImageData[] = [];
+      const baseUrl = import.meta.env.VITE_BACKEND_URL + "/images/book/";
+      const thumbnail = baseUrl + book.thumbnail;
+      imagesData.push({
+        original: thumbnail,
+        thumbnail: thumbnail,
+      });
+
+      if (book.slider && book.slider.length > 0) {
+        book.slider.forEach((img) => {
+          imagesData.push({
+            original: baseUrl + img,
+            thumbnail: baseUrl + img,
+          });
+        });
+      }
+
+      setImages([...imagesData]);
+    }
+  }, [book]);
 
   return (
     <>
@@ -52,21 +71,24 @@ const BookDetail = () => {
           <div className="flex flex-col space-y-5 mt-10 sm:mt-0">
             <div className="flex space-x-1">
               <p className="text-sm font-normal">Tác giả: </p>
-              <span className="text-sm text-blue-400">Jo Hemmings</span>
+              <span className="text-sm text-blue-400">{book?.author}</span>
             </div>
 
             <p className="text-[24px] text-[#676666] font-[150] capitalize">
-              How Psychology Works - hiểu hết về tâm lý học
+              {book?.mainText}
             </p>
 
             <div className="flex items-center space-x-3 font-[100]">
               <Rate defaultValue={5} disabled className="text-sm" />
-              <span className="text-[15px]">Đã bán 6969</span>
+              <span className="text-[15px]">Đã bán {book?.sold}</span>
             </div>
 
             <div className="bg-gray-100 h-20 flex items-center ">
               <p className="ml-5 text-[30px] text-orange-600 font-semibold">
-                696.966.666 đ
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(book?.price ?? 0)}
               </p>
             </div>
 
@@ -86,7 +108,7 @@ const BookDetail = () => {
                   -
                 </span>
                 <span className="flex justify-center items-center border-solid  border-gray-200 w-[40px]">
-                  1
+                  {book?.quantity}
                 </span>
                 <span className="flex justify-center items-center border-solid rounded-sm border-gray-200 w-[30px] cursor-pointer hover:bg-gray-100">
                   +
@@ -116,6 +138,7 @@ const BookDetail = () => {
         setIsModalOpen={setIsModalOpen}
         images={images}
         currentIndex={refGallery.current?.getCurrentIndex() || 0}
+        title={book?.mainText}
       />
     </>
   );

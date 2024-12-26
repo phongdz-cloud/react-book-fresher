@@ -131,3 +131,8 @@ export const deleteBookAPI = (id: string) => {
   const urlBackend = "/api/v1/book" + `/${id}`;
   return axios.delete<IBackendRes<IFileUploadResponse>>(urlBackend);
 };
+
+export const getBookAPI = (id: string) => {
+  const urlBackend = "/api/v1/book" + `/${id}`;
+  return axios.get<IBackendRes<IBookTable>>(urlBackend);
+};
