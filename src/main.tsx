@@ -18,6 +18,7 @@ import LayoutAdmin from "components/layout/layout.admin";
 import DashBoardPage from "./pages/admin/dashboard";
 import { AppProvider } from "./components/context/app.context";
 import enUS from "antd/locale/en_US";
+import BookLoader from "./components/book/loader.book";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "/book/:id",
         element: <BookPage />,
+      },
+      {
+        path: "/book/skeleton",
+        element: <BookLoader />,
       },
       {
         path: "/about",
