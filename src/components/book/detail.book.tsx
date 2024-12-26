@@ -1,18 +1,16 @@
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Col, Image, Rate, Row } from "antd";
-import { useState } from "react";
+import { Col, Rate, Row } from "antd";
+import { useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import ModalDetailBook from "./modal.detai.book";
 const BookDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const refGallery = useRef<ImageGallery>(null);
   const [images, setImages] = useState([
     {
       original: "https://picsum.photos/id/1018/1000/600/",
-      thumbnail: "",
+      thumbnail: "https://picsum.photos/id/1018/1000/600/",
     },
-  ]);
-
-  const slider = [
     {
       original: "https://picsum.photos/id/1015/1000/600/",
       thumbnail: "https://picsum.photos/id/1015/250/150/",
@@ -21,46 +19,29 @@ const BookDetail = () => {
       original: "https://picsum.photos/id/1019/1000/600/",
       thumbnail: "https://picsum.photos/id/1019/250/150/",
     },
-  ];
+  ]);
 
   return (
     <>
       <Row gutter={20}>
         {/* Image */}
         <Col xs={0} xl={8}>
-          <div className="flex flex-col space-y-2">
-            <div
-              className="cursor-pointer"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <ImageGallery
-                items={images}
-                showFullscreenButton={false}
-                showPlayButton={false}
-                showNav={false}
-                showThumbnails={false}
-              />
-            </div>
-            <div className="flex justify-center space-x-2">
-              {slider.map((item, index) => {
-                return (
-                  <div
-                    className="hover:border-solid border-blue-500 border-[4px] cursor-pointer"
-                    key={index}
-                    onClick={() => {
-                      setImages([item]);
-                    }}
-                  >
-                    <Image width={120} src={item.thumbnail} preview={false} />
-                  </div>
-                );
-              })}
-            </div>
+          <div className="cursor-pointer">
+            <ImageGallery
+              ref={refGallery}
+              items={images}
+              showFullscreenButton={false}
+              showPlayButton={false}
+              showNav={false}
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+            />
           </div>
         </Col>
         <Col xs={24} xl={0}>
           <ImageGallery
-            items={[...images, ...slider]}
+            items={images}
             showFullscreenButton={false}
             showPlayButton={false}
             showNav={false}
@@ -134,6 +115,7 @@ const BookDetail = () => {
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         images={images}
+        currentIndex={refGallery.current?.getCurrentIndex() || 0}
       />
     </>
   );

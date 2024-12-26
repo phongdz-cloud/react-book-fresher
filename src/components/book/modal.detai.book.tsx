@@ -1,4 +1,5 @@
 import { Col, Image, Modal, Row } from "antd";
+import { useEffect, useRef, useState } from "react";
 import ReactImageGallery from "react-image-gallery";
 
 interface IPropType {
@@ -8,25 +9,21 @@ interface IPropType {
     original: string;
     thumbnail: string;
   }[];
-  //   setImages?: (value: any) => void;
+  currentIndex: number;
 }
 const ModalDetailBook = (props: IPropType) => {
   const { isModalOpen, setIsModalOpen, images } = props;
+  const refGallery = useRef<ReactImageGallery>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+
+  useEffect(() => {
+    setCurrentIndex(props.currentIndex);
+  }, [props.currentIndex]);
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setCurrentIndex(0);
   };
-
-  const slider = [
-    {
-      original: "https://picsum.photos/id/1015/1000/600/",
-      thumbnail: "https://picsum.photos/id/1015/250/150/",
-    },
-    {
-      original: "https://picsum.photos/id/1019/1000/600/",
-      thumbnail: "https://picsum.photos/id/1019/250/150/",
-    },
-  ];
 
   return (
     <>
@@ -52,20 +49,29 @@ const ModalDetailBook = (props: IPropType) => {
               items={images}
               showFullscreenButton={false}
               showPlayButton={false}
-              showNav={false}
               showThumbnails={false}
+              startIndex={currentIndex}
+              ref={refGallery}
+              onSlide={(currentIndex) => {
+                setCurrentIndex(currentIndex);
+              }}
             />
           </Col>
           <Col span={8}>
             <Row gutter={[12, 12]}>
-              {slider.map((item, index) => {
+              {images.map((item, index) => {
                 return (
                   <Col span={12} key={index}>
                     <div
-                      className=" cursor-pointer"
+                      className={
+                        index === currentIndex
+                          ? "border-2 border-solid border-blue-500 w-full cursor-pointer"
+                          : "cursor-pointer"
+                      }
                       key={index}
                       onClick={() => {
-                        //   setImages([item]);
+                        refGallery.current?.slideToIndex(index);
+                        setCurrentIndex(index);
                       }}
                     >
                       <Image width={120} src={item.thumbnail} preview={false} />
