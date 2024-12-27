@@ -1,6 +1,8 @@
+import { createOrderAPI } from "@/services/api";
 import { deleteBookLocalStorage } from "@/services/book.service";
 import { DeleteOutlined, SmileOutlined } from "@ant-design/icons";
 import {
+  App,
   Button,
   Col,
   Divider,
@@ -14,12 +16,11 @@ import {
   Row,
 } from "antd";
 import { useForm } from "antd/lib/form/Form";
+import TextArea from "antd/lib/input/TextArea";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useCurrentApp } from "../context/app.context";
 import OrderStep from "./order.step";
-import TextArea from "antd/lib/input/TextArea";
-import { Link } from "react-router-dom";
-import { createOrderAPI } from "@/services/api";
 
 interface FieldType {
   address?: string;
@@ -32,7 +33,7 @@ const OrderDetail = () => {
   const [current, setCurrent] = useState<number>(0);
   const { carts, setCarts, user } = useCurrentApp();
   const [loading, setLoading] = useState<boolean>(false);
-  const { notification } = useCurrentApp();
+  const { notification } = App.useApp();
 
   const total = useMemo(() => {
     return carts?.reduce((acc, cart) => {
