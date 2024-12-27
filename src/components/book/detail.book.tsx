@@ -4,6 +4,9 @@ import { useForm } from "antd/es/form/Form";
 import { useEffect, useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
 import ModalDetailBook from "./modal.detai.book";
+import { FormProps } from "antd/lib";
+import { saveBookLocalStorage } from "@/services/book.service";
+import { useCurrentApp } from "../context/app.context";
 
 interface IPropType {
   book: IBookTable | undefined;
@@ -19,6 +22,7 @@ const BookDetail = (props: IPropType) => {
   const { book } = props;
   const [form] = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { setCarts } = useCurrentApp();
   const refGallery = useRef<ImageGallery>(null);
   const [images, setImages] = useState<ImageData[]>([]);
 
@@ -44,14 +48,7 @@ const BookDetail = (props: IPropType) => {
     }
   }, [book]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onValuesChange = (changedValues: any) => {
-    // Đây là nơi nhận giá trị thay đổi theo thời gian
-    console.log("changedValues", changedValues);
-  };
-
   const handleChangeValue = (value: number) => {
-    console.log("value", value);
     const quantity = form.getFieldValue("quantity");
 
     if (quantity === 1 && value === -1) return;
@@ -61,6 +58,15 @@ const BookDetail = (props: IPropType) => {
     form.setFieldsValue({
       quantity: form.getFieldValue("quantity") + value,
     });
+  };
+
+  const onFinish: FormProps<FieldType>["onFinish"] = async (
+    values: FieldType
+  ) => {
+    if (book && values.quantity) {
+      const carts: ICartData[] = saveBookLocalStorage(book, values.quantity);
+      setCarts([...carts]);
+    }
   };
 
   return (
@@ -91,12 +97,7 @@ const BookDetail = (props: IPropType) => {
           />
         </Col>
         <Col xl={16}>
-          <Form
-            name="basic"
-            // onFinish={onFinish}
-            form={form}
-            onValuesChange={onValuesChange}
-          >
+          <Form name="basic" onFinish={onFinish} form={form}>
             <div className="flex flex-col space-y-5 mt-10 sm:mt-0">
               <div className="flex space-x-1">
                 <p className="text-sm font-normal">Tác giả: </p>
@@ -170,7 +171,10 @@ const BookDetail = (props: IPropType) => {
                 </div>
               </div>
               <div className="flex space-x-5">
-                <div className="px-3 cursor-pointer hover:bg-orange-100 flex justify-center items-center space-x-2 h-[40px] bg-[#ff57221a;] border-[#ee4d2d] border-solid rounded-sm">
+                <div
+                  onClick={() => form.submit()}
+                  className="px-3 cursor-pointer hover:bg-orange-100 flex justify-center items-center space-x-2 h-[40px] bg-[#ff57221a;] border-[#ee4d2d] border-solid rounded-sm"
+                >
                   <ShoppingCartOutlined className=" text-orange-600" />
                   <span className="text-[13px] text-[#ee4d2d]">
                     Thêm vào giỏ hàng

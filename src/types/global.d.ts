@@ -94,4 +94,10 @@ declare global {
   interface IFileUploadResponse {
     fileUploaded: string;
   }
+
+  interface ICartData {
+    detail: IBookTable;
+    quantity: number;
+    _id: string;
+  }
 }
