@@ -19,6 +19,7 @@ import { useCurrentApp } from "../context/app.context";
 import OrderStep from "./order.step";
 import TextArea from "antd/lib/input/TextArea";
 import { Link } from "react-router-dom";
+import { createOrderAPI } from "@/services/api";
 
 interface FieldType {
   address?: string;
@@ -30,6 +31,8 @@ const OrderDetail = () => {
   const [form] = useForm();
   const [current, setCurrent] = useState<number>(0);
   const { carts, setCarts, user } = useCurrentApp();
+  const [loading, setLoading] = useState<boolean>(false);
+  const { notification } = useCurrentApp();
 
   const total = useMemo(() => {
     return carts?.reduce((acc, cart) => {
@@ -56,7 +59,39 @@ const OrderDetail = () => {
   const onFinish: FormProps<FieldType>["onFinish"] = async (
     values: FieldType
   ) => {
-    console.log("values", values);
+    setLoading(true);
+    const cartRequest: ICartRequest = {
+      address: values.address,
+      name: values.fullName,
+      type: values.method,
+      phone: values.phone,
+      totalPrice: total,
+      detail: carts.map((cart) => {
+        return {
+          _id: cart._id,
+          quantity: cart.quantity,
+          bookName: cart.detail.mainText,
+        };
+      }),
+    };
+
+    console.log("cartRequest", cartRequest);
+    // call api
+
+    const res = await createOrderAPI(cartRequest);
+
+    if (res && res.data) {
+      setCurrent(2);
+      setCarts([]);
+      localStorage.removeItem("carts");
+    } else {
+      notification.error({
+        message: "Có lỗi xảy ra",
+        description: JSON.stringify(res.error),
+      });
+    }
+
+    setLoading(false);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,221 +121,235 @@ const OrderDetail = () => {
               cartLength={carts?.length}
             />
           </div>
-          <div className="">
-            <Form
-              name="basic"
-              layout="vertical"
-              onFinish={onFinish}
-              form={form}
-              onFieldsChange={onFieldChange}
-            >
-              <Row gutter={12}>
-                <Col span={16}>
-                  {carts?.length !== 0 ? (
-                    <Row gutter={[12, 12]}>
-                      {carts?.map((cart) => {
-                        return (
-                          <Col span={24} key={cart._id}>
-                            <div className="p-5 bg-white flex justify-between items-center border-solid rounded-lg border-white">
-                              <Col>
-                                <div>
-                                  <Image
-                                    width={80}
-                                    src={baseUrl + cart.detail.thumbnail}
-                                    preview={false}
-                                  />
-                                </div>
-                              </Col>
-                              <Col>
-                                <div>
-                                  <p className="text-[13px] capitalize break-words min-w-[200px] max-w-[200px]">
-                                    {cart.detail.mainText}
-                                  </p>
-                                </div>
-                              </Col>
-                              <Col>
-                                <div className="flex items-center justify-center space-x-2 ">
-                                  <div className="flex justify-center items-center min-w-[140px] space-x-2">
+          {current !== 2 ? (
+            <div className="">
+              <Form
+                name="basic"
+                layout="vertical"
+                onFinish={onFinish}
+                form={form}
+                onFieldsChange={onFieldChange}
+              >
+                <Row gutter={12}>
+                  <Col span={16}>
+                    {carts?.length !== 0 ? (
+                      <Row gutter={[12, 12]}>
+                        {carts?.map((cart) => {
+                          return (
+                            <Col span={24} key={cart._id}>
+                              <div className="p-5 bg-white flex justify-between items-center border-solid rounded-lg border-white">
+                                <Col>
+                                  <div>
+                                    <Image
+                                      width={80}
+                                      src={baseUrl + cart.detail.thumbnail}
+                                      preview={false}
+                                    />
+                                  </div>
+                                </Col>
+                                <Col>
+                                  <div>
+                                    <p className="text-[13px] capitalize break-words min-w-[200px] max-w-[200px]">
+                                      {cart.detail.mainText}
+                                    </p>
+                                  </div>
+                                </Col>
+                                <Col>
+                                  <div className="flex items-center justify-center space-x-2 ">
+                                    <div className="flex justify-center items-center min-w-[140px] space-x-2">
+                                      <span className="text-[14px]">
+                                        {new Intl.NumberFormat("vi-VN", {
+                                          style: "currency",
+                                          currency: "VND",
+                                        }).format(cart.detail.price)}
+                                      </span>
+                                      {current === 0 ? (
+                                        <Form.Item
+                                          name={["quantity", cart?._id]}
+                                          noStyle={true}
+                                          initialValue={cart.quantity}
+                                        >
+                                          <InputNumber min={1} max={1000} />
+                                        </Form.Item>
+                                      ) : (
+                                        <div className="flex justify-center items-center space-x-1 min-w-[100px]">
+                                          <span className="text-[14px]">
+                                            Số lượng:
+                                          </span>
+                                          <span>{cart.quantity}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </Col>
+
+                                <Col>
+                                  <div className="flex items-center space-x-2 ">
+                                    <span className="text-[14px]">Tổng: </span>
                                     <span className="text-[14px]">
                                       {new Intl.NumberFormat("vi-VN", {
                                         style: "currency",
                                         currency: "VND",
-                                      }).format(cart.detail.price)}
+                                      }).format(
+                                        cart.detail.price * cart.quantity
+                                      )}
                                     </span>
-                                    {current === 0 ? (
-                                      <Form.Item
-                                        name={["quantity", cart?._id]}
-                                        noStyle={true}
-                                        initialValue={cart.quantity}
-                                      >
-                                        <InputNumber min={1} max={1000} />
-                                      </Form.Item>
-                                    ) : (
-                                      <div className="flex justify-center items-center space-x-1 min-w-[100px]">
-                                        <span className="text-[14px]">
-                                          Số lượng:
-                                        </span>
-                                        <span>{cart.quantity}</span>
-                                      </div>
-                                    )}
                                   </div>
-                                </div>
-                              </Col>
-
-                              <Col>
-                                <div className="flex items-center space-x-2 ">
-                                  <span className="text-[14px]">Tổng: </span>
-                                  <span className="text-[14px]">
-                                    {new Intl.NumberFormat("vi-VN", {
-                                      style: "currency",
-                                      currency: "VND",
-                                    }).format(
-                                      cart.detail.price * cart.quantity
-                                    )}
-                                  </span>
-                                </div>
-                              </Col>
-                              <Col>
-                                <div>
-                                  <DeleteOutlined
-                                    className="text-pink-500 cursor-pointer"
-                                    onClick={() => handleDeleteBook(cart._id)}
-                                  />
-                                </div>
-                              </Col>
-                            </div>
-                          </Col>
-                        );
-                      })}
-                    </Row>
-                  ) : (
-                    <Result
-                      icon={<SmileOutlined />}
-                      title="Bạn hiện chưa có sản phẩm quay lại trang chủ để mua hàng"
-                      extra={
-                        <Button type="primary">
-                          <Link to={"/"}>Trang chủ</Link>
-                        </Button>
-                      }
-                    />
-                  )}
-                </Col>
-                <Col style={{ flex: 1 }}>
-                  <div className="flex flex-col space-y-2 bg-white border-solid rounded-lg border-gray-100 p-5">
-                    {current !== 0 && (
-                      <>
-                        <div>
-                          <Form.Item<FieldType>
-                            name={"method"}
-                            label={"Hình thức thanh toán:"}
-                            initialValue={"COD"}
-                          >
-                            <Radio.Group className="flex flex-col space-y-2">
-                              <Radio value={"COD"}>
-                                Thanh toán khi nhận hàng
-                              </Radio>
-                              <Radio value={"BANKING"}>
-                                Chuyển khoản ngân hàng
-                              </Radio>
-                            </Radio.Group>
-                          </Form.Item>
-
-                          <Form.Item<FieldType>
-                            name={"fullName"}
-                            label={"Họ tên"}
-                            initialValue={user?.fullName}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Họ tên không được để trống",
-                              },
-                            ]}
-                          >
-                            <Input />
-                          </Form.Item>
-
-                          <Form.Item<FieldType>
-                            name={"phone"}
-                            label={"Số điện thoại"}
-                            initialValue={user?.phone}
-                            rules={[
-                              {
-                                required: true,
-                                message: "Số điện thoại không được để trống",
-                              },
-                            ]}
-                          >
-                            <Input />
-                          </Form.Item>
-
-                          <Form.Item<FieldType>
-                            name={"address"}
-                            label={"Địa chỉ nhận hàng"}
-                            initialValue={""}
-                            rules={[
-                              {
-                                required: true,
-                                message:
-                                  "Địa chỉ nhận hàng không được để trống",
-                              },
-                            ]}
-                          >
-                            <TextArea rows={4} />
-                          </Form.Item>
-                        </div>
-                      </>
+                                </Col>
+                                <Col>
+                                  <div>
+                                    <DeleteOutlined
+                                      className="text-pink-500 cursor-pointer"
+                                      onClick={() => handleDeleteBook(cart._id)}
+                                    />
+                                  </div>
+                                </Col>
+                              </div>
+                            </Col>
+                          );
+                        })}
+                      </Row>
+                    ) : (
+                      <Result
+                        icon={<SmileOutlined />}
+                        title="Bạn hiện chưa có sản phẩm quay lại trang chủ để mua hàng"
+                        extra={
+                          <Button type="primary">
+                            <Link to={"/"}>Trang chủ</Link>
+                          </Button>
+                        }
+                      />
                     )}
-                    <div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm">Tạm tính</span>
-                        <span className="text-sm">
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(total)}
-                        </span>
-                      </div>
+                  </Col>
+                  <Col style={{ flex: 1 }}>
+                    <div className="flex flex-col space-y-2 bg-white border-solid rounded-lg border-gray-100 p-5">
+                      {current !== 0 && (
+                        <>
+                          <div>
+                            <Form.Item<FieldType>
+                              name={"method"}
+                              label={"Hình thức thanh toán:"}
+                              initialValue={"COD"}
+                            >
+                              <Radio.Group className="flex flex-col space-y-2">
+                                <Radio value={"COD"}>
+                                  Thanh toán khi nhận hàng
+                                </Radio>
+                                <Radio value={"BANKING"}>
+                                  Chuyển khoản ngân hàng
+                                </Radio>
+                              </Radio.Group>
+                            </Form.Item>
+
+                            <Form.Item<FieldType>
+                              name={"fullName"}
+                              label={"Họ tên"}
+                              initialValue={user?.fullName}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Họ tên không được để trống",
+                                },
+                              ]}
+                            >
+                              <Input />
+                            </Form.Item>
+
+                            <Form.Item<FieldType>
+                              name={"phone"}
+                              label={"Số điện thoại"}
+                              initialValue={user?.phone}
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Số điện thoại không được để trống",
+                                },
+                              ]}
+                            >
+                              <Input />
+                            </Form.Item>
+
+                            <Form.Item<FieldType>
+                              name={"address"}
+                              label={"Địa chỉ nhận hàng"}
+                              initialValue={""}
+                              rules={[
+                                {
+                                  required: true,
+                                  message:
+                                    "Địa chỉ nhận hàng không được để trống",
+                                },
+                              ]}
+                            >
+                              <TextArea rows={4} />
+                            </Form.Item>
+                          </div>
+                        </>
+                      )}
                       <div>
-                        <Divider />
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tổng tiền</span>
-                        <span className="text-lg text-orange-600">
-                          {new Intl.NumberFormat("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                          }).format(total)}
-                        </span>
-                      </div>
-                      <div>
-                        <Divider />
-                      </div>
-                      <div>
-                        <button
-                          className={
-                            carts?.length > 0
-                              ? "w-full px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500"
-                              : "w-full px-3 h-[40px] bg-gray-600 text-white rounded-sm border-none "
-                          }
-                          disabled={carts?.length === 0}
-                          onClick={() => {
-                            if (current === 1) {
-                              form.submit();
-                            }
-                            setCurrent(1);
-                          }}
-                          type="button"
-                        >
-                          {current === 0 ? "Mua Hàng" : "Đặt Hàng"} (
-                          {carts?.length})
-                        </button>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm">Tạm tính</span>
+                          <span className="text-sm">
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(total)}
+                          </span>
+                        </div>
+                        <div>
+                          <Divider />
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Tổng tiền</span>
+                          <span className="text-lg text-orange-600">
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(total)}
+                          </span>
+                        </div>
+                        <div>
+                          <Divider />
+                        </div>
+                        <div>
+                          <Button
+                            className={"w-full h-[40px]"}
+                            color="danger"
+                            variant="solid"
+                            disabled={carts?.length === 0}
+                            onClick={() => {
+                              if (current === 1) {
+                                form.submit();
+                                return;
+                              }
+                              setCurrent(1);
+                            }}
+                            htmlType="button"
+                            loading={loading}
+                          >
+                            {current === 0 ? "Mua Hàng" : "Đặt Hàng"} (
+                            {carts?.length})
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Col>
-              </Row>
-            </Form>
-          </div>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
+          ) : (
+            <Result
+              status="success"
+              title="Đặt hàng thành công"
+              subTitle="Hệ thống đã ghi nhận thông tin đơn hàng của bạn"
+              extra={[
+                <Button type="primary" key="console">
+                  <Link to="/">Trang chủ</Link>
+                </Button>,
+                <Button key="buy">Lich sử mua hàng</Button>,
+              ]}
+            />
+          )}
         </div>
       </div>
     </>

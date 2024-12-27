@@ -140,3 +140,8 @@ export const getBookAPI = (id: string) => {
     },
   });
 };
+
+export const createOrderAPI = (cartRequest: ICartRequest) => {
+  const urlBackend = "/api/v1/order";
+  return axios.post<IBackendRes<IFileUploadResponse>>(urlBackend, cartRequest);
+};

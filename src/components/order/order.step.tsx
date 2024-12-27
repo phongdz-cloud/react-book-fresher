@@ -26,7 +26,7 @@ const OrderStep = (props: IOrderStepProps) => {
           {
             title: "Thanh toán",
             className: "cursor-pointer",
-            disabled: cartLength === 0,
+            disabled: true,
           },
         ]}
       />

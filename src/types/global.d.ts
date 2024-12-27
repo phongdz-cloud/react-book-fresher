@@ -100,4 +100,17 @@ declare global {
     quantity: number;
     _id: string;
   }
+
+  interface ICartRequest {
+    address?: string;
+    name?: string;
+    phone?: string;
+    totalPrice?: number;
+    type?: string;
+    detail?: {
+      _id?: string;
+      quantity?: number;
+      bookName?: string;
+    }[];
+  }
 }
