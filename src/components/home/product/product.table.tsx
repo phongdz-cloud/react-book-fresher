@@ -1,4 +1,6 @@
+import MobileBook from "@/components/book/mobile.book";
 import { getBooksAPI } from "@/services/api";
+import { FilterOutlined } from "@ant-design/icons";
 import {
   Col,
   Divider,
@@ -17,6 +19,8 @@ import { useNavigate } from "react-router-dom";
 interface IProps {
   queryCategory: string[];
   price: number[];
+  setPrice: (price: number[]) => void;
+  setQueryCategory: (query: string[]) => void;
 }
 const ProductTable = (props: IProps) => {
   const [books, setBooks] = useState<IBookTable[]>([]);
@@ -25,7 +29,8 @@ const ProductTable = (props: IProps) => {
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [querySort, setQuerySort] = useState<string>("&sort=-sold");
-  const { queryCategory, price } = props;
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
+  const { queryCategory, price, setPrice, setQueryCategory } = props;
   const nav = useNavigate();
 
   const fetchDataBook = useCallback(async () => {
@@ -97,6 +102,23 @@ const ProductTable = (props: IProps) => {
       <Spin spinning={loading} size="small" tip="loading...">
         <Flex vertical={true} gap={"10"}>
           <Row>
+            <Col xs={24} xl={0}>
+              <div>
+                <div>
+                  <div
+                    className="flex gap-2"
+                    onClick={() => {
+                      setOpenDrawer(true);
+                    }}
+                  >
+                    <FilterOutlined className="text-blue-600" />
+                    <span className=" font-bold">Lọc</span>
+                  </div>
+                </div>
+              </div>
+            </Col>
+          </Row>
+          <Row>
             {books.map((book) => {
               return (
                 <Col xs={12} sm={8} md={6} lg={6} xl={6} key={book._id}>
@@ -155,6 +177,13 @@ const ProductTable = (props: IProps) => {
           </Row>
         </Flex>
       </Spin>
+
+      <MobileBook
+        open={openDrawer}
+        setOpen={setOpenDrawer}
+        setPrice={setPrice}
+        setQueryCategory={setQueryCategory}
+      />
     </>
   );
 };

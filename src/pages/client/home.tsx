@@ -20,7 +20,12 @@ const HomePage = () => {
           />
         </Col>
         <Col xs={24} style={{ flex: 1 }}>
-          <ProductTable queryCategory={queryCategory} price={price} />
+          <ProductTable
+            queryCategory={queryCategory}
+            price={price}
+            setPrice={setPrice}
+            setQueryCategory={setQueryCategory}
+          />
         </Col>
       </Row>
     </>

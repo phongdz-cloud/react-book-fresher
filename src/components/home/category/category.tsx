@@ -84,7 +84,7 @@ const Category = (props: IProps) => {
             <Col>
               <Paragraph>
                 <div className="flex gap-2">
-                  <FilterOutlined />
+                  <FilterOutlined className="text-blue-600" />
                   <span className=" font-bold">Bộ lọc tìm kiếm</span>
                 </div>
               </Paragraph>
@@ -102,7 +102,7 @@ const Category = (props: IProps) => {
           <Divider></Divider>
         </Col>
         <Col span={24}>
-          <Row style={{ margin: "15px 0px" }}>
+          <Row style={{ margin: "5px 0px" }}>
             <Col span={24}>
               <Paragraph>
                 <p>Danh mục sản phẩm</p>
