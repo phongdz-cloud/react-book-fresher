@@ -1,14 +1,22 @@
-import { useEffect, useState } from "react";
+import { logoutAPI } from "@/services/api";
+import {
+  Avatar,
+  Badge,
+  Divider,
+  Drawer,
+  Dropdown,
+  Image,
+  Popover,
+  Space,
+} from "antd";
+import { useState } from "react";
 import { FaReact } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
-import { Divider, Badge, Drawer, Avatar, Popover, Image, Button } from "antd";
-import { Dropdown, Space } from "antd";
 import { useNavigate } from "react-router";
-import "./app.header.scss";
 import { Link } from "react-router-dom";
 import { useCurrentApp } from "../context/app.context";
-import { logoutAPI } from "@/services/api";
+import "./app.header.scss";
 
 const AppHeader = (props: any) => {
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -88,7 +96,10 @@ const AppHeader = (props: any) => {
           );
         })}
         <div className="flex end-4 justify-end">
-          <button className="px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500">
+          <button
+            onClick={() => navigate("/order")}
+            className="px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500"
+          >
             Xem giỏ hàng
           </button>
         </div>

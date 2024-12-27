@@ -19,6 +19,8 @@ import DashBoardPage from "./pages/admin/dashboard";
 import { AppProvider } from "./components/context/app.context";
 import enUS from "antd/locale/en_US";
 import BookLoader from "./components/book/loader.book";
+import OrderDetail from "./components/order/order.detail";
+import OrderPage from "./pages/client/order";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -31,6 +33,14 @@ const router = createBrowserRouter([
       {
         path: "/book/:id",
         element: <BookPage />,
+      },
+      {
+        path: "/order",
+        element: (
+          <ProtectedRoute>
+            <OrderPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/book/skeleton",
