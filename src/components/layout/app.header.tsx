@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaReact } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
-import { Divider, Badge, Drawer, Avatar, Popover } from "antd";
+import { Divider, Badge, Drawer, Avatar, Popover, Image, Button } from "antd";
 import { Dropdown, Space } from "antd";
 import { useNavigate } from "react-router";
 import "./app.header.scss";
@@ -62,30 +62,36 @@ const AppHeader = (props: any) => {
   }`;
 
   const contentPopover = () => {
+    const baseUrl = import.meta.env.VITE_BACKEND_URL + "/images/book/";
     return (
-      <div className="pop-cart-body">
-        {/* <div className='pop-cart-content'>
-                    {carts?.map((book, index) => {
-                        return (
-                            <div className='book' key={`book-${index}`}>
-                                <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`} />
-                                <div>{book?.detail?.mainText}</div>
-                                <div className='price'>
-                                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(book?.detail?.price ?? 0)}
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-                {carts.length > 0 ?
-                    <div className='pop-cart-footer'>
-                        <button onClick={() => navigate('/order')}>Xem giỏ hàng</button>
-                    </div>
-                    :
-                    <Empty
-                        description="Không có sản phẩm trong giỏ hàng"
-                    />
-                } */}
+      <div className="pop-cart-body flex flex-col space-y-2">
+        {carts?.map((cart) => {
+          return (
+            <div className="flex" key={cart._id}>
+              <div>
+                <Image
+                  src={baseUrl + cart.detail.thumbnail}
+                  width={50}
+                  preview={false}
+                />
+              </div>
+              <div className="flex justify-center space-x-1">
+                <p className="text-[12px]">{cart.detail.mainText}</p>
+                <span className="text-[12px] text-orange-500 capitalize">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(cart.detail.price)}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+        <div className="flex end-4 justify-end">
+          <button className="px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500">
+            Xem giỏ hàng
+          </button>
+        </div>
       </div>
     );
   };
