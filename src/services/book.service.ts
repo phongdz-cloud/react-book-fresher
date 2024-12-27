@@ -1,3 +1,9 @@
+export const getCartsLocalStorage = () => {
+  const cartStr = localStorage.getItem("carts");
+  if (!cartStr) return [];
+  return JSON.parse(cartStr);
+};
+
 export const saveBookLocalStorage = (
   bookData: IBookTable,
   quantity: number

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaReact } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { VscSearchFuzzy } from "react-icons/vsc";
@@ -13,7 +13,7 @@ import { logoutAPI } from "@/services/api";
 const AppHeader = (props: any) => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const { isAuthenticated, setIsAuthenticated, user, setUser } =
+  const { isAuthenticated, setIsAuthenticated, user, setUser, carts } =
     useCurrentApp();
 
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ const AppHeader = (props: any) => {
       key: "logout",
     },
   ];
+
   if (user?.role === "ADMIN") {
     items.unshift({
       label: <Link to="/admin">Trang quản trị</Link>,
@@ -132,7 +133,7 @@ const AppHeader = (props: any) => {
                 >
                   <Badge
                     // count={carts?.length ?? 0}
-                    count={10}
+                    count={carts?.length ?? 0}
                     size={"small"}
                     showZero
                   >

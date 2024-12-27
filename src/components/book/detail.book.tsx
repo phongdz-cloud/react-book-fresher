@@ -1,5 +1,5 @@
 import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Col, Form, InputNumber, Rate, Row } from "antd";
+import { App, Col, Form, InputNumber, Rate, Row } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { useEffect, useRef, useState } from "react";
 import ImageGallery from "react-image-gallery";
@@ -23,6 +23,7 @@ const BookDetail = (props: IPropType) => {
   const [form] = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { setCarts } = useCurrentApp();
+  const { message } = App.useApp();
   const refGallery = useRef<ImageGallery>(null);
   const [images, setImages] = useState<ImageData[]>([]);
 
@@ -66,6 +67,7 @@ const BookDetail = (props: IPropType) => {
     if (book && values.quantity) {
       const carts: ICartData[] = saveBookLocalStorage(book, values.quantity);
       setCarts([...carts]);
+      message.success("Thêm sản phẩm vào giỏ hàng thành công");
     }
   };
 

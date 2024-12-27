@@ -1,4 +1,5 @@
 import { fetchAccountAPI } from "@/services/api";
+import { getCartsLocalStorage } from "@/services/book.service";
 import { createContext, useContext, useEffect, useState } from "react";
 import PacmanLoader from "react-spinners/PacmanLoader";
 
@@ -36,6 +37,12 @@ export const AppProvider = (props: TProps) => {
     };
 
     fetchAccount();
+
+    const cartsDataLocalStorage: ICartData[] = getCartsLocalStorage();
+
+    if (cartsDataLocalStorage) {
+      setCarts(cartsDataLocalStorage);
+    }
   }, []);
 
   return (
