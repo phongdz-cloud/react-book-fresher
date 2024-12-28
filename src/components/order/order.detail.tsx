@@ -33,7 +33,7 @@ const OrderDetail = () => {
   const [current, setCurrent] = useState<number>(0);
   const { carts, setCarts, user } = useCurrentApp();
   const [loading, setLoading] = useState<boolean>(false);
-  const { notification } = App.useApp();
+  const { notification, message } = App.useApp();
 
   const total = useMemo(() => {
     return carts?.reduce((acc, cart) => {
@@ -76,7 +76,6 @@ const OrderDetail = () => {
       }),
     };
 
-    console.log("cartRequest", cartRequest);
     // call api
 
     const res = await createOrderAPI(cartRequest);
@@ -85,6 +84,7 @@ const OrderDetail = () => {
       setCurrent(2);
       setCarts([]);
       localStorage.removeItem("carts");
+      message.success("Đặt hàng thành công");
     } else {
       notification.error({
         message: "Có lỗi xảy ra",

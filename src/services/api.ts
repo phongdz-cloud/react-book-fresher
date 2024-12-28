@@ -145,3 +145,8 @@ export const createOrderAPI = (cartRequest: ICartRequest) => {
   const urlBackend = "/api/v1/order";
   return axios.post<IBackendRes<IFileUploadResponse>>(urlBackend, cartRequest);
 };
+
+export const getHistoriesAPI = () => {
+  const urlBackend = "/api/v1/history";
+  return axios.get<IBackendRes<IHistoryTable[]>>(urlBackend);
+};

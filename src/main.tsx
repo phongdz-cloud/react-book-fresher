@@ -20,6 +20,7 @@ import BookLoader from "./components/book/loader.book";
 import { AppProvider } from "./components/context/app.context";
 import DashBoardPage from "./pages/admin/dashboard";
 import OrderPage from "./pages/client/order";
+import HistoryPage from "./pages/client/history";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -48,6 +49,14 @@ const router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/history",
+        element: (
+          <ProtectedRoute>
+            <HistoryPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/checkout",

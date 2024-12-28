@@ -113,4 +113,24 @@ declare global {
       bookName?: string;
     }[];
   }
+
+  interface IHistoryTable {
+    _id: string;
+    name: string;
+    type: string;
+    email: string;
+    phone: string;
+    userId: string;
+    detail: {
+      _id: string;
+      quantity: number;
+      bookName: string;
+    }[];
+    totalPrice: number;
+    paymentStatus: string;
+    paymentRef: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: 0;
+  }
 }
