@@ -133,4 +133,10 @@ declare global {
     updatedAt: string;
     __v: 0;
   }
+
+  interface IDashBoard {
+    countUser: number;
+    countOrder: number;
+    countBook: number;
+  }
 }

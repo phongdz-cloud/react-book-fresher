@@ -194,3 +194,19 @@ export const getHistoriesAPI = () => {
   const urlBackend = "/api/v1/history";
   return axios.get<IBackendRes<IHistoryTable[]>>(urlBackend);
 };
+
+export const getOrderAPI = (
+  current: number,
+  pageSize: number,
+  query: string,
+  sort: string
+) => {
+  const urlBackend =
+    `/api/v1/order?current=${current}&pageSize=${pageSize}` + query + sort;
+  return axios.get<IBackendRes<IModelPaginate<IHistoryTable>>>(urlBackend);
+};
+
+export const getDashboardAPI = () => {
+  const urlBackend = "/api/v1/database/dashboard";
+  return axios.get<IBackendRes<IDashBoard>>(urlBackend);
+};
