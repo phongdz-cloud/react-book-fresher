@@ -17,9 +17,11 @@ import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import { useCurrentApp } from "../context/app.context";
 import "./app.header.scss";
+import ManageAccount from "../account/manage.account";
 
 const AppHeader = (props: any) => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [openModalAccount, setOpenModalAccount] = useState(false);
 
   const { isAuthenticated, setIsAuthenticated, user, setUser, carts } =
     useCurrentApp();
@@ -38,7 +40,12 @@ const AppHeader = (props: any) => {
   let items = [
     {
       label: (
-        <label style={{ cursor: "pointer" }} onClick={() => alert("me")}>
+        <label
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            setOpenModalAccount(true);
+          }}
+        >
           Quản lý tài khoản
         </label>
       ),
@@ -189,6 +196,10 @@ const AppHeader = (props: any) => {
         <p onClick={() => handleLogout()}>Đăng xuất</p>
         <Divider />
       </Drawer>
+      <ManageAccount
+        isModalOpen={openModalAccount}
+        setIsModalOpen={setOpenModalAccount}
+      />
     </>
   );
 };

@@ -347,7 +347,9 @@ const OrderDetail = () => {
                 <Button type="primary" key="console">
                   <Link to="/">Trang chủ</Link>
                 </Button>,
-                <Button key="buy">Lich sử mua hàng</Button>,
+                <Button key="buy">
+                  <Link to="/history">Lịch sử mua hàng</Link>
+                </Button>,
               ]}
             />
           )}

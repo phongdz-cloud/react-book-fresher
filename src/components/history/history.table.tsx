@@ -25,7 +25,7 @@ const HistoryTable = () => {
     {
       title: "STT",
       dataIndex: "stt",
-      render: (index) => {
+      render: (text, record, index) => {
         return index + 1;
       },
     },
@@ -39,7 +39,7 @@ const HistoryTable = () => {
     {
       title: "Tổng số tiền",
       dataIndex: "totalPrice",
-      render: (record) => {
+      render: (index, record) => {
         return new Intl.NumberFormat("vi-VN", {
           style: "currency",
           currency: "VND",

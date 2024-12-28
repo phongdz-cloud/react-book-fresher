@@ -75,6 +75,50 @@ export const updateUsersAPI = (
   });
 };
 
+export const updateInfoAPI = (
+  _id: string,
+  fullName: string,
+  phone: string,
+  avatar: string
+) => {
+  const urlBackend = "/api/v1/user";
+  return axios.put<IBackendRes<IUserTable>>(urlBackend, {
+    _id,
+    fullName,
+    phone,
+    avatar,
+  });
+};
+
+export const uploadFileAvatarImg = (fileImg: UploadFile) => {
+  const urlBackend = "/api/v1/file/upload";
+  const formData = new FormData();
+  formData.append("fileImg", fileImg.originFileObj as Blob);
+
+  return axios<IBackendRes<IFileUploadResponse>>({
+    method: "post",
+    url: urlBackend,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "upload-type": "avatar",
+    },
+  });
+};
+
+export const changePasswordAPI = (
+  email: string,
+  oldpass: string,
+  newpass: string
+) => {
+  const urlBackend = "/api/v1/user/change-password";
+  return axios.post<IBackendRes<IUserTable>>(urlBackend, {
+    email,
+    oldpass,
+    newpass,
+  });
+};
+
 export const deleteUsersAPI = (_id: string) => {
   const urlBackend = `/api/v1/user/${_id}`;
   return axios.delete<IBackendRes<IUserTable>>(urlBackend);
