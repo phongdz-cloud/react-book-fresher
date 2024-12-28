@@ -1,6 +1,6 @@
 import BookDetail from "@/components/book/detail.book";
-import { Card } from "antd";
-import { useParams } from "react-router-dom";
+import { Breadcrumb, Card, Col, Row } from "antd";
+import { Link, useParams } from "react-router-dom";
 import "../../styles/book.scss";
 import { useCallback, useEffect, useState } from "react";
 import { getBookAPI } from "@/services/api";
@@ -27,7 +27,21 @@ const BookPage = () => {
   }, [fetchBookById]);
 
   return (
-    <div className=" bg-gray-100 h-[100vh] px-5 pt-10">
+    <div className=" bg-gray-100 h-[100vh] px-5 pt-10 flex flex-col space-y-2">
+      <Row>
+        <Col span={24}>
+          <Breadcrumb
+            items={[
+              {
+                title: <Link to="/">Trang chủ</Link>,
+              },
+              {
+                title: "Chi tiết sản phẩm",
+              },
+            ]}
+          />
+        </Col>
+      </Row>
       <Card className="bg-white">
         {isLoader ? <BookLoader /> : <BookDetail book={book} />}
       </Card>

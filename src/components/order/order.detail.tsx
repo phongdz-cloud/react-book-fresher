@@ -3,6 +3,7 @@ import { deleteBookLocalStorage } from "@/services/book.service";
 import { DeleteOutlined, SmileOutlined } from "@ant-design/icons";
 import {
   App,
+  Breadcrumb,
   Button,
   Col,
   Divider,
@@ -113,9 +114,23 @@ const OrderDetail = () => {
 
   return (
     <>
-      <div className="w-full h-[100vw] bg-gray-200">
+      <div className="w-full h-[100vh] bg-gray-200">
         <div className="flex flex-col p-10 space-y-5">
-          <div className="bg-white p-5 border-solid rounded-lg border-white">
+          <Row>
+            <Col span={24}>
+              <Breadcrumb
+                items={[
+                  {
+                    title: <Link to="/">Trang chủ</Link>,
+                  },
+                  {
+                    title: "Chi tiết giỏ hàng",
+                  },
+                ]}
+              />
+            </Col>
+          </Row>
+          <div className="bg-white p-5 border-solid rounded-lg border-white hidden sm:block">
             <OrderStep
               current={current}
               setCurrent={setCurrent}
@@ -131,15 +146,23 @@ const OrderDetail = () => {
                 form={form}
                 onFieldsChange={onFieldChange}
               >
-                <Row gutter={12}>
-                  <Col span={16}>
+                <Row gutter={[12, 12]}>
+                  <Col xs={24} xl={16}>
                     {carts?.length !== 0 ? (
                       <Row gutter={[12, 12]}>
                         {carts?.map((cart) => {
                           return (
                             <Col span={24} key={cart._id}>
-                              <div className="p-5 bg-white flex justify-between items-center border-solid rounded-lg border-white">
-                                <Col>
+                              <div className="p-5 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center border-solid rounded-lg border-white space-y-5 sm:space-y-0">
+                                <Col xs={24} xl={0}>
+                                  <div>
+                                    <p className="text-[13px] capitalize break-words ">
+                                      {cart.detail.mainText}
+                                    </p>
+                                  </div>
+                                </Col>
+
+                                <Col xs={0} xl={4}>
                                   <div>
                                     <Image
                                       width={80}
@@ -148,14 +171,14 @@ const OrderDetail = () => {
                                     />
                                   </div>
                                 </Col>
-                                <Col>
+                                <Col xs={0} xl={6}>
                                   <div>
                                     <p className="text-[13px] capitalize break-words min-w-[200px] max-w-[200px]">
                                       {cart.detail.mainText}
                                     </p>
                                   </div>
                                 </Col>
-                                <Col>
+                                <Col xs={0} xl={6}>
                                   <div className="flex items-center justify-center space-x-2 ">
                                     <div className="flex justify-center items-center min-w-[140px] space-x-2">
                                       <span className="text-[14px]">
@@ -184,6 +207,42 @@ const OrderDetail = () => {
                                   </div>
                                 </Col>
 
+                                <div className="flex justify-between items-center sm:hidden w-full">
+                                  <div>
+                                    <Image
+                                      width={80}
+                                      src={baseUrl + cart.detail.thumbnail}
+                                      preview={false}
+                                    />
+                                  </div>
+                                  <div className="flex items-center justify-center space-x-2 ">
+                                    <div className="flex justify-center items-center min-w-[140px] space-x-2">
+                                      {current === 0 ? (
+                                        <Form.Item
+                                          name={["quantity", cart?._id]}
+                                          noStyle={true}
+                                          initialValue={cart.quantity}
+                                        >
+                                          <InputNumber min={1} max={1000} />
+                                        </Form.Item>
+                                      ) : (
+                                        <div className="flex justify-center items-center space-x-1 min-w-[100px]">
+                                          <span className="text-[14px]">
+                                            Số lượng:
+                                          </span>
+                                          <span>{cart.quantity}</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <DeleteOutlined
+                                      className="text-pink-500 cursor-pointer"
+                                      onClick={() => handleDeleteBook(cart._id)}
+                                    />
+                                  </div>
+                                </div>
+
                                 <Col>
                                   <div className="flex items-center space-x-2 ">
                                     <span className="text-[14px]">Tổng: </span>
@@ -197,7 +256,7 @@ const OrderDetail = () => {
                                     </span>
                                   </div>
                                 </Col>
-                                <Col>
+                                <Col xs={0} xl={1}>
                                   <div>
                                     <DeleteOutlined
                                       className="text-pink-500 cursor-pointer"
@@ -222,7 +281,7 @@ const OrderDetail = () => {
                       />
                     )}
                   </Col>
-                  <Col style={{ flex: 1 }}>
+                  <Col style={{ flex: 1 }} xl={24}>
                     <div className="flex flex-col space-y-2 bg-white border-solid rounded-lg border-gray-100 p-5">
                       {current !== 0 && (
                         <>

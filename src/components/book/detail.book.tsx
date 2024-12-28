@@ -7,6 +7,7 @@ import ModalDetailBook from "./modal.detai.book";
 import { FormProps } from "antd/lib";
 import { saveBookLocalStorage } from "@/services/book.service";
 import { useCurrentApp } from "../context/app.context";
+import { useNavigate } from "react-router-dom";
 
 interface IPropType {
   book: IBookTable | undefined;
@@ -22,10 +23,11 @@ const BookDetail = (props: IPropType) => {
   const { book } = props;
   const [form] = useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { setCarts } = useCurrentApp();
+  const { setCarts, isAuthenticated } = useCurrentApp();
   const { message } = App.useApp();
   const refGallery = useRef<ImageGallery>(null);
   const [images, setImages] = useState<ImageData[]>([]);
+  const nav = useNavigate();
 
   useEffect(() => {
     if (book) {
@@ -68,6 +70,18 @@ const BookDetail = (props: IPropType) => {
       const carts: ICartData[] = saveBookLocalStorage(book, values.quantity);
       setCarts([...carts]);
       message.success("Thêm sản phẩm vào giỏ hàng thành công");
+    }
+  };
+
+  const handleBuyNow = (isBuyNow: boolean) => {
+    if (!isAuthenticated) {
+      message.error("Vui lòng đăng nhập để mua hàng");
+      return;
+    }
+
+    form.submit();
+    if (isBuyNow) {
+      nav("/order");
     }
   };
 
@@ -174,7 +188,7 @@ const BookDetail = (props: IPropType) => {
               </div>
               <div className="flex space-x-5">
                 <div
-                  onClick={() => form.submit()}
+                  onClick={() => handleBuyNow(false)}
                   className="px-3 cursor-pointer hover:bg-orange-100 flex justify-center items-center space-x-2 h-[40px] bg-[#ff57221a;] border-[#ee4d2d] border-solid rounded-sm"
                 >
                   <ShoppingCartOutlined className=" text-orange-600" />
@@ -183,7 +197,11 @@ const BookDetail = (props: IPropType) => {
                   </span>
                 </div>
                 <div>
-                  <button className="px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500">
+                  <button
+                    type="button"
+                    className="px-3 h-[40px] bg-orange-600 text-white rounded-sm border-none cursor-pointer hover:bg-orange-500"
+                    onClick={() => handleBuyNow(true)}
+                  >
                     Mua ngay
                   </button>
                 </div>

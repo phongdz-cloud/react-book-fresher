@@ -14,7 +14,7 @@ import {
   Tabs,
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 interface IProps {
   queryCategory: string[];
@@ -32,6 +32,7 @@ const ProductTable = (props: IProps) => {
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const { queryCategory, price, setPrice, setQueryCategory } = props;
   const nav = useNavigate();
+  const [searchTerm] = useOutletContext() as [string];
 
   const fetchDataBook = useCallback(async () => {
     setLoading(true);
@@ -45,6 +46,10 @@ const ProductTable = (props: IProps) => {
       queryData += `&price>=${price[0]}&price<=${price[1]}`;
     }
 
+    if (searchTerm) {
+      queryData += `&mainText=/${searchTerm}/i`;
+    }
+
     const res = await getBooksAPI(current, pageSize, queryData, querySort);
     if (res && res.data) {
       setBooks(res.data.result);
@@ -53,7 +58,7 @@ const ProductTable = (props: IProps) => {
       setTotal(res.data.meta.total);
     }
     setLoading(false);
-  }, [current, pageSize, price, queryCategory, querySort]);
+  }, [current, pageSize, price, queryCategory, querySort, searchTerm]);
 
   useEffect(() => {
     fetchDataBook();
